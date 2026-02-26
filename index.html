@@ -3,709 +3,733 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-<title>🐔 Chickens of Doom: A Totally Normal Adventure</title>
+<title>🐸 Leap of Logic — A Frogger Math Adventure</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:'Nunito',sans-serif}
-#game-container{width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(135deg,#1a1a3e,#0d0d2b)}
-#title-screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#2d1b69,#11063a 50%,#0a0420);z-index:100;transition:opacity 0.6s;overflow-y:auto;padding:1rem}
-#title-screen.hidden{opacity:0;pointer-events:none}
-.title-stars{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#wrap{width:100%;height:100%;position:relative;overflow:hidden}
+
+/* ===== TITLE ===== */
+#title{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#0d3b0d,#0a2a1a 50%,#051a10);z-index:100;transition:opacity .6s;padding:1.2rem;overflow-y:auto}
+#title.hidden{opacity:0;pointer-events:none}
+.stars{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .star{position:absolute;background:#fff;border-radius:50%;animation:twinkle 2s infinite alternate}
 @keyframes twinkle{0%{opacity:.2;transform:scale(.8)}100%{opacity:1;transform:scale(1.2)}}
-.game-logo{font-family:'Lilita One',cursive;font-size:clamp(2rem,6.5vw,4rem);color:#FFD700;text-shadow:0 4px 0 #B8860B,0 8px 20px rgba(255,215,0,.4),0 0 60px rgba(255,215,0,.2);text-align:center;line-height:1.1;margin-bottom:.3rem;z-index:2;animation:logoFloat 3s ease-in-out infinite}
-@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.chicken-bounce{display:inline-block;animation:chickenBop .6s ease-in-out infinite alternate}
-@keyframes chickenBop{0%{transform:rotate(-8deg)}100%{transform:rotate(8deg)}}
-.game-subtitle{font-family:'Nunito',sans-serif;font-size:clamp(.85rem,2.3vw,1.2rem);color:#b8a9ff;text-align:center;margin-bottom:1.5rem;z-index:2;font-weight:700;font-style:italic}
-.instructions-box{background:rgba(255,255,255,.08);backdrop-filter:blur(10px);border:2px solid rgba(255,215,0,.3);border-radius:20px;padding:1.1rem 1.4rem;max-width:92%;width:520px;margin-bottom:1.5rem;z-index:2}
-.instructions-box h3{font-family:'Lilita One',cursive;color:#FFD700;font-size:clamp(1rem,2.5vw,1.3rem);margin-bottom:.6rem;text-align:center}
-.inst-row{display:flex;align-items:center;gap:.7rem;margin:.45rem 0;color:#e0d8ff;font-size:clamp(.78rem,1.9vw,.95rem);font-weight:700}
-.inst-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
-.inst-icon.tap{background:linear-gradient(135deg,#4CAF50,#2E7D32)}.inst-icon.solve{background:linear-gradient(135deg,#FF9800,#E65100)}.inst-icon.collect{background:linear-gradient(135deg,#2196F3,#0D47A1)}.inst-icon.explore{background:linear-gradient(135deg,#9C27B0,#4A148C)}
-.btn-play{font-family:'Lilita One',cursive;font-size:clamp(1.4rem,4vw,2rem);padding:.8rem 3rem;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(180deg,#FFD700,#FFA000);color:#5D4037;box-shadow:0 6px 0 #B8860B,0 10px 30px rgba(0,0,0,.4);z-index:2;transition:transform .1s,box-shadow .1s}
-.btn-play:active{transform:translateY(4px);box-shadow:0 2px 0 #B8860B,0 4px 10px rgba(0,0,0,.4)}
-#hud{position:absolute;top:0;left:0;right:0;height:56px;z-index:50;background:linear-gradient(180deg,rgba(0,0,0,.8),rgba(0,0,0,0));display:flex;align-items:center;justify-content:space-between;padding:8px 12px}
-.hud-item{display:flex;align-items:center;gap:5px;color:#fff;font-weight:800;font-size:clamp(.7rem,1.8vw,.95rem)}
-.hud-icon{font-size:1.2rem}
-#hud-hp-bar{width:clamp(70px,18vw,130px);height:13px;background:rgba(255,255,255,.15);border-radius:7px;overflow:hidden;border:2px solid rgba(255,255,255,.3)}
-#hud-hp-fill{height:100%;background:linear-gradient(90deg,#4CAF50,#8BC34A);border-radius:5px;transition:width .5s;width:100%}
-#hud-location{position:absolute;top:8px;left:50%;transform:translateX(-50%);font-family:'Lilita One',cursive;color:#FFD700;font-size:clamp(.65rem,2vw,.95rem);text-shadow:0 2px 8px rgba(0,0,0,.8);white-space:nowrap}
-#scene{position:absolute;top:56px;left:0;right:0;bottom:210px;overflow:hidden}
-#scene-canvas{width:100%;height:100%;display:block}
-#panel{position:absolute;bottom:0;left:0;right:0;height:210px;z-index:40;background:linear-gradient(180deg,rgba(15,10,40,.95),rgba(10,5,30,1));border-top:3px solid rgba(255,215,0,.3);display:flex;flex-direction:column;padding:8px 10px}
-#dialog-speaker{font-family:'Lilita One',cursive;color:#FFD700;font-size:clamp(.75rem,1.8vw,.95rem);padding:0 6px;margin-bottom:1px}
-#dialog-text{color:#e8e0ff;font-size:clamp(.78rem,2vw,.98rem);font-weight:700;padding:2px 6px;flex:1 1 auto;min-height:2em;line-height:1.35;overflow:hidden}
-#buttons-area{flex:1;display:flex;flex-wrap:wrap;gap:7px;padding:5px 2px;align-content:flex-start;overflow-y:auto;justify-content:center}
-.game-btn{font-family:'Nunito',sans-serif;font-weight:800;font-size:clamp(.75rem,2vw,.9rem);padding:7px 13px;border:none;border-radius:13px;cursor:pointer;color:#fff;min-width:55px;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.3),0 6px 15px rgba(0,0,0,.2);transition:transform .08s,box-shadow .08s}
-.game-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.3)}
-.game-btn.blue{background:linear-gradient(180deg,#42A5F5,#1565C0)}.game-btn.green{background:linear-gradient(180deg,#66BB6A,#2E7D32)}.game-btn.orange{background:linear-gradient(180deg,#FFA726,#E65100)}.game-btn.purple{background:linear-gradient(180deg,#AB47BC,#6A1B9A)}.game-btn.red{background:linear-gradient(180deg,#EF5350,#B71C1C)}.game-btn.gold{background:linear-gradient(180deg,#FFD54F,#F9A825);color:#5D4037}.game-btn.pink{background:linear-gradient(180deg,#F06292,#AD1457)}.game-btn.teal{background:linear-gradient(180deg,#26C6DA,#00838F)}.game-btn.full{width:100%;max-width:300px}
-#puzzle-overlay{position:absolute;inset:0;z-index:60;display:none;background:rgba(5,0,20,.92);backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center;padding:1rem}
-#puzzle-overlay.active{display:flex}
-#puzzle-box{background:linear-gradient(135deg,#1a1040,#0d0825);border:3px solid rgba(255,215,0,.4);border-radius:24px;padding:1.1rem;width:95%;max-width:500px;max-height:88vh;overflow-y:auto;box-shadow:0 0 60px rgba(100,50,255,.2)}
-#puzzle-title{font-family:'Lilita One',cursive;color:#FFD700;font-size:clamp(1rem,2.8vw,1.4rem);text-align:center;margin-bottom:.4rem}
-#puzzle-desc{color:#c8b8ff;font-weight:700;font-size:clamp(.85rem,2.2vw,1.05rem);text-align:center;margin-bottom:.8rem;line-height:1.45}
-#puzzle-content{display:flex;flex-direction:column;align-items:center;gap:9px}
-.puzzle-option{font-family:'Nunito',sans-serif;font-weight:800;font-size:clamp(.9rem,2.4vw,1.15rem);padding:11px 18px;border:3px solid rgba(255,255,255,.15);border-radius:16px;cursor:pointer;color:#fff;background:rgba(255,255,255,.06);width:100%;max-width:380px;text-align:center;transition:transform .1s,border-color .2s,background .2s}
-.puzzle-option:active{transform:scale(.96)}
-.puzzle-option.correct{border-color:#4CAF50;background:rgba(76,175,80,.25);pointer-events:none}
-.puzzle-option.wrong{border-color:#F44336;background:rgba(244,67,54,.2);pointer-events:none}
-.puzzle-option.disabled{opacity:.4;pointer-events:none}
-#puzzle-feedback{font-family:'Lilita One',cursive;font-size:clamp(1rem,2.8vw,1.5rem);text-align:center;margin-top:.6rem;min-height:1.8rem}
-#puzzle-feedback.correct-fb{color:#4CAF50}#puzzle-feedback.wrong-fb{color:#F44336}
-#puzzle-continue{display:none;margin-top:.6rem}
-#inventory-overlay{position:absolute;inset:0;z-index:55;display:none;background:rgba(5,0,20,.9);backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center;padding:1rem}
-#inventory-overlay.active{display:flex}
-.inv-box{background:linear-gradient(135deg,#1a1040,#0d0825);border:3px solid rgba(255,215,0,.3);border-radius:24px;padding:1.2rem;width:90%;max-width:400px}
-.inv-title{font-family:'Lilita One',cursive;color:#FFD700;text-align:center;font-size:1.3rem;margin-bottom:1rem}
-.inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem}
-.inv-slot{aspect-ratio:1;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
-.inv-slot.filled{border-color:rgba(255,215,0,.4);background:rgba(255,215,0,.08)}
-#victory-screen{position:absolute;inset:0;z-index:90;display:none;background:linear-gradient(180deg,#1a0a4e,#0a0420);flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto}
-#victory-screen.active{display:flex}
-.victory-title{font-family:'Lilita One',cursive;font-size:clamp(1.6rem,5.5vw,2.8rem);color:#FFD700;text-shadow:0 4px 0 #B8860B,0 0 40px rgba(255,215,0,.4);animation:logoFloat 2s ease-in-out infinite;margin-bottom:.8rem;text-align:center}
-.victory-stats{background:rgba(255,255,255,.06);border:2px solid rgba(255,215,0,.2);border-radius:20px;padding:1rem;width:90%;max-width:400px;margin-bottom:1.2rem}
-.stat-row{display:flex;justify-content:space-between;padding:5px 0;color:#c8b8ff;font-weight:800;font-size:clamp(.8rem,2.2vw,1rem);border-bottom:1px solid rgba(255,255,255,.06)}
-.stat-row:last-child{border:none}.stat-val{color:#FFD700}
-#transition-overlay{position:absolute;inset:0;z-index:80;background:#000;opacity:0;pointer-events:none;transition:opacity .4s}
-#transition-overlay.active{opacity:1;pointer-events:all}
-.notification{position:absolute;top:65px;left:50%;transform:translateX(-50%);z-index:70;font-family:'Lilita One',cursive;font-size:clamp(.9rem,2.5vw,1.2rem);padding:8px 20px;border-radius:50px;color:#fff;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none}
-.notification.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.notification.gem{background:linear-gradient(135deg,#1565C0,#42A5F5)}.notification.key{background:linear-gradient(135deg,#F9A825,#FFD54F);color:#5D4037}.notification.item{background:linear-gradient(135deg,#6A1B9A,#AB47BC)}.notification.hp{background:linear-gradient(135deg,#2E7D32,#66BB6A)}.notification.damage{background:linear-gradient(135deg,#B71C1C,#EF5350)}
-.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:260px}
-.numpad-btn{font-family:'Lilita One',cursive;font-size:clamp(1.1rem,3.2vw,1.5rem);padding:11px;border:none;border-radius:13px;cursor:pointer;background:linear-gradient(180deg,#37306B,#1a1040);color:#fff;border:2px solid rgba(255,255,255,.15);box-shadow:0 3px 0 rgba(0,0,0,.4)}
-.numpad-btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
-.numpad-btn.enter{background:linear-gradient(180deg,#4CAF50,#2E7D32)}.numpad-btn.clear{background:linear-gradient(180deg,#F44336,#B71C1C)}
-#puzzle-input-display{font-family:'Lilita One',cursive;font-size:clamp(1.4rem,3.8vw,1.9rem);color:#FFD700;text-align:center;min-height:2.2rem;padding:6px;border-bottom:3px solid rgba(255,215,0,.4);margin-bottom:.4rem;min-width:100px}
+.logo{font-family:'Lilita One',cursive;font-size:clamp(2.2rem,7vw,4rem);color:#4CAF50;text-shadow:0 4px 0 #1B5E20,0 8px 20px rgba(76,175,80,.4);text-align:center;line-height:1.1;z-index:2;animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.frog-bounce{display:inline-block;animation:fbop .5s ease-in-out infinite alternate}
+@keyframes fbop{0%{transform:rotate(-6deg) scale(1)}100%{transform:rotate(6deg) scale(1.1)}}
+.sub{font-size:clamp(.8rem,2.2vw,1.15rem);color:#A5D6A7;text-align:center;margin:.4rem 0 1.2rem;z-index:2;font-weight:700;font-style:italic}
+.info-box{background:rgba(255,255,255,.07);backdrop-filter:blur(8px);border:2px solid rgba(76,175,80,.35);border-radius:20px;padding:1rem 1.3rem;max-width:92%;width:480px;margin-bottom:1.5rem;z-index:2}
+.info-box h3{font-family:'Lilita One',cursive;color:#66BB6A;font-size:clamp(1rem,2.5vw,1.3rem);margin-bottom:.5rem;text-align:center}
+.irow{display:flex;align-items:center;gap:.7rem;margin:.4rem 0;color:#C8E6C9;font-size:clamp(.78rem,1.9vw,.93rem);font-weight:700}
+.iico{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0}
+.iico.a{background:linear-gradient(135deg,#4CAF50,#2E7D32)}.iico.b{background:linear-gradient(135deg,#FF9800,#E65100)}.iico.c{background:linear-gradient(135deg,#2196F3,#0D47A1)}.iico.d{background:linear-gradient(135deg,#9C27B0,#4A148C)}
+.play-btn{font-family:'Lilita One',cursive;font-size:clamp(1.4rem,4vw,2rem);padding:.8rem 3rem;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(180deg,#66BB6A,#2E7D32);color:#fff;box-shadow:0 6px 0 #1B5E20,0 10px 30px rgba(0,0,0,.4);z-index:2;transition:transform .1s,box-shadow .1s;text-shadow:0 2px 4px rgba(0,0,0,.3)}
+.play-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #1B5E20,0 4px 10px rgba(0,0,0,.4)}
 
-/* ARCADE OVERLAY */
-#arcade-overlay{position:absolute;inset:0;z-index:60;display:none;background:#0a0a2e;flex-direction:column;align-items:center;justify-content:flex-start;padding:0}
-#arcade-overlay.active{display:flex}
-#arcade-canvas{display:block;touch-action:none;flex-shrink:0}
-#arcade-hud{width:100%;padding:6px 12px;display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.6);font-family:'Lilita One',cursive;color:#FFD700;font-size:clamp(.7rem,2vw,.95rem)}
-#arcade-controls{width:100%;flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px;min-height:100px}
-.dpad-area{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:4px;width:160px;height:160px}
-.dpad-btn{border:none;border-radius:14px;font-size:clamp(1.2rem,3.5vw,1.6rem);cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);color:#fff;border:2px solid rgba(255,255,255,.15);box-shadow:0 3px 0 rgba(0,0,0,.3)}
-.dpad-btn:active{transform:translateY(2px);background:rgba(255,255,255,.2)}
-.dpad-btn.up{grid-column:2;grid-row:1}.dpad-btn.left{grid-column:1;grid-row:2}.dpad-btn.right{grid-column:3;grid-row:2}.dpad-btn.down{grid-column:2;grid-row:3}
-.dpad-center{grid-column:2;grid-row:2;border-radius:14px;background:rgba(255,255,255,.03);border:2px solid rgba(255,255,255,.06)}
-.action-btn{width:80px;height:80px;border-radius:50%;border:3px solid;font-family:'Lilita One',cursive;font-size:clamp(.8rem,2.2vw,1rem);cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;color:#fff}
-.action-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.3)}
-.action-btn.jump{background:linear-gradient(180deg,#EF5350,#B71C1C);border-color:#C62828}
+/* ===== GAME HUD ===== */
+#game{position:absolute;inset:0;display:none;flex-direction:column;background:#111}
+#game.active{display:flex}
+#hud{height:48px;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:space-between;padding:0 12px;flex-shrink:0;border-bottom:2px solid rgba(76,175,80,.3)}
+.hi{display:flex;align-items:center;gap:5px;color:#fff;font-weight:800;font-size:clamp(.7rem,1.8vw,.9rem)}
+.hi .ic{font-size:1.1rem}
+#hud-level{font-family:'Lilita One',cursive;color:#66BB6A;font-size:clamp(.7rem,2vw,.95rem);text-shadow:0 1px 4px rgba(0,0,0,.6)}
+#hud-theme{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Lilita One',cursive;color:#FFD700;font-size:clamp(.6rem,1.6vw,.8rem);white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+
+/* ===== CANVAS ===== */
+#canvas-wrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background:#0a1a0a}
+#game-canvas{display:block;touch-action:none}
+
+/* ===== CONTROLS ===== */
+#controls{height:170px;background:linear-gradient(180deg,rgba(10,20,10,.95),rgba(5,15,5,1));border-top:2px solid rgba(76,175,80,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:8px;gap:20px}
+.dpad{display:grid;grid-template-columns:62px 62px 62px;grid-template-rows:62px 62px 62px;gap:4px}
+.dbtn{border:none;border-radius:14px;font-size:1.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(76,175,80,.15);color:#66BB6A;border:2px solid rgba(76,175,80,.3);box-shadow:0 3px 0 rgba(0,0,0,.3);transition:background .08s}
+.dbtn:active{transform:translateY(2px);background:rgba(76,175,80,.35);box-shadow:0 1px 0 rgba(0,0,0,.3)}
+.dbtn.blank{background:transparent;border-color:transparent;box-shadow:none;cursor:default}
+.dbtn.blank:active{transform:none}
+.ctrl-info{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ctrl-info span{color:#4CAF50;font-family:'Lilita One',cursive;font-size:clamp(.65rem,1.5vw,.8rem);text-align:center}
+.lives-display{display:flex;gap:2px;font-size:1.3rem}
+
+/* ===== LEVEL BANNER ===== */
+#level-banner{position:absolute;inset:0;z-index:20;display:none;background:rgba(0,0,0,.85);flex-direction:column;align-items:center;justify-content:center;padding:1rem}
+#level-banner.active{display:flex}
+.banner-text{font-family:'Lilita One',cursive;color:#66BB6A;font-size:clamp(1.5rem,5vw,2.5rem);text-shadow:0 3px 0 #1B5E20,0 0 30px rgba(76,175,80,.3);animation:bob 2s ease-in-out infinite}
+.banner-sub{color:#A5D6A7;font-weight:700;font-size:clamp(.85rem,2.2vw,1.1rem);margin-top:.5rem;text-align:center}
+.banner-emoji{font-size:3rem;margin-bottom:.5rem}
+
+/* ===== MATH OVERLAY ===== */
+#math-overlay{position:absolute;inset:0;z-index:30;display:none;background:rgba(5,15,5,.94);backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center;padding:1rem}
+#math-overlay.active{display:flex}
+#math-box{background:linear-gradient(135deg,#0d2b0d,#061a06);border:3px solid rgba(76,175,80,.4);border-radius:24px;padding:1.2rem;width:95%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 0 50px rgba(76,175,80,.15)}
+#math-title{font-family:'Lilita One',cursive;color:#66BB6A;font-size:clamp(.9rem,2.5vw,1.3rem);text-align:center;margin-bottom:.3rem}
+#math-q{color:#C8E6C9;font-weight:700;font-size:clamp(.85rem,2.2vw,1.05rem);text-align:center;margin-bottom:.8rem;line-height:1.45}
+#math-display{font-family:'Lilita One',cursive;font-size:clamp(1.6rem,4.5vw,2.2rem);color:#FFD700;text-align:center;min-height:2.4rem;padding:8px;border-bottom:3px solid rgba(255,215,0,.4);margin:0 auto .6rem;min-width:120px;max-width:220px;letter-spacing:2px}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:280px;margin:0 auto}
+.nbtn{font-family:'Lilita One',cursive;font-size:clamp(1.2rem,3.5vw,1.6rem);padding:13px;border:none;border-radius:14px;cursor:pointer;background:linear-gradient(180deg,#1B5E20,#0d3b0d);color:#C8E6C9;border:2px solid rgba(76,175,80,.25);box-shadow:0 3px 0 rgba(0,0,0,.4)}
+.nbtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+.nbtn.enter{background:linear-gradient(180deg,#4CAF50,#2E7D32);color:#fff}.nbtn.clear{background:linear-gradient(180deg,#E53935,#B71C1C);color:#fff}
+#math-fb{font-family:'Lilita One',cursive;font-size:clamp(1rem,2.8vw,1.4rem);text-align:center;margin-top:.6rem;min-height:1.6rem}
+#math-fb.ok{color:#4CAF50}#math-fb.no{color:#E53935}
+#math-next{display:none;margin:.7rem auto 0;font-family:'Lilita One',cursive;font-size:clamp(.95rem,2.5vw,1.15rem);padding:10px 30px;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(180deg,#66BB6A,#2E7D32);color:#fff;box-shadow:0 4px 0 #1B5E20}
+#math-next:active{transform:translateY(3px);box-shadow:0 1px 0 #1B5E20}
+#math-attempts{color:#A5D6A7;font-size:clamp(.7rem,1.6vw,.8rem);text-align:center;margin-top:.3rem;font-weight:700;min-height:1.2rem}
+
+/* ===== VICTORY ===== */
+#victory{position:absolute;inset:0;z-index:90;display:none;background:linear-gradient(180deg,#0d3b0d,#051a10);flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto}
+#victory.active{display:flex}
+.vtitle{font-family:'Lilita One',cursive;font-size:clamp(1.6rem,5.5vw,2.8rem);color:#4CAF50;text-shadow:0 4px 0 #1B5E20,0 0 40px rgba(76,175,80,.4);animation:bob 2s ease-in-out infinite;margin-bottom:.8rem;text-align:center}
+.vstats{background:rgba(255,255,255,.06);border:2px solid rgba(76,175,80,.25);border-radius:20px;padding:1rem;width:90%;max-width:400px;margin-bottom:1.2rem}
+.srow{display:flex;justify-content:space-between;padding:5px 0;color:#A5D6A7;font-weight:800;font-size:clamp(.8rem,2.2vw,1rem);border-bottom:1px solid rgba(255,255,255,.06)}
+.srow:last-child{border:none}.sval{color:#FFD700}
+.vtext{color:#C8E6C9;text-align:center;font-weight:700;margin-bottom:1.2rem;font-size:clamp(.85rem,2.2vw,1rem);line-height:1.5;max-width:420px}
+
+/* ===== TRANSITION ===== */
+#fade{position:absolute;inset:0;z-index:50;background:#000;opacity:0;pointer-events:none;transition:opacity .35s}
+#fade.on{opacity:1;pointer-events:all}
 
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
-@media(max-height:600px){#panel{height:180px}#scene{bottom:180px}}
-@media(min-width:768px){#panel{height:230px}#scene{bottom:230px}}
 </style>
 </head>
 <body>
-<div id="game-container">
-<div id="title-screen">
-<div class="title-stars" id="stars-container"></div>
-<div class="game-logo"><span class="chicken-bounce">🐔</span> Chickens of Doom</div>
-<div class="game-subtitle">A Totally Normal Adventure (featuring suspiciously brainy poultry)</div>
-<div class="instructions-box">
+<div id="wrap">
+
+<!-- TITLE SCREEN -->
+<div id="title">
+<div class="stars" id="stars-box"></div>
+<div class="logo"><span class="frog-bounce">🐸</span> Leap of Logic</div>
+<div class="sub">A Frogger Math Adventure</div>
+<div class="info-box">
 <h3>📖 HOW TO PLAY</h3>
-<div class="inst-row"><div class="inst-icon tap">👆</div><b>TAP</b>&nbsp;buttons to explore, talk & choose</div>
-<div class="inst-row"><div class="inst-icon solve">🧩</div><b>SOLVE</b>&nbsp;puzzles — you MUST get them right to proceed!</div>
-<div class="inst-row"><div class="inst-icon collect">💎</div><b>COLLECT</b>&nbsp;gems, keys & weird items</div>
-<div class="inst-row"><div class="inst-icon explore">🗺️</div><b>SURVIVE</b>&nbsp;arcade challenges — cross roads & jump platforms!</div>
+<div class="irow"><div class="iico a">🐸</div><b>CROSS</b>&nbsp;roads & rivers to reach the safe zone</div>
+<div class="irow"><div class="iico b">🧮</div><b>SOLVE</b>&nbsp;a maths question to unlock the next level</div>
+<div class="irow"><div class="iico c">📈</div><b>SURVIVE</b>&nbsp;19 levels of increasing chaos</div>
+<div class="irow"><div class="iico d">🏆</div><b>CONQUER</b>&nbsp;all levels to become the Leap of Logic champion!</div>
 </div>
-<button class="btn-play" id="btn-start" ontouchstart="">🎮 START ADVENTURE</button>
+<button class="play-btn" id="btn-go" ontouchstart="">🎮 START</button>
 </div>
-<div id="hud" style="display:none">
-<div class="hud-item"><span class="hud-icon">❤️</span><div id="hud-hp-bar"><div id="hud-hp-fill"></div></div></div>
-<div id="hud-location"></div>
-<div style="display:flex;gap:10px">
-<div class="hud-item" id="hud-gems"><span class="hud-icon">💎</span><span id="gem-count">0</span></div>
-<div class="hud-item" id="hud-keys"><span class="hud-icon">🔑</span><span id="key-count">0</span></div>
-<div class="hud-item" onclick="toggleInventory()" style="cursor:pointer"><span class="hud-icon">🎒</span></div>
-</div>
-</div>
-<div id="scene"><canvas id="scene-canvas"></canvas></div>
-<div id="panel" style="display:none">
-<div id="dialog-speaker"></div>
-<div id="dialog-text"></div>
-<div id="buttons-area"></div>
-</div>
-<div id="puzzle-overlay">
-<div id="puzzle-box">
-<div id="puzzle-title"></div>
-<div id="puzzle-desc"></div>
-<div id="puzzle-content"></div>
-<div id="puzzle-feedback"></div>
-<button class="game-btn gold full" id="puzzle-continue" onclick="closePuzzle()" ontouchstart="">Continue ➜</button>
+
+<!-- GAME SCREEN -->
+<div id="game">
+<div id="hud">
+<div class="hi" id="hud-level"><span class="ic">🐸</span> Level 1</div>
+<div id="hud-theme"></div>
+<div style="display:flex;gap:12px;align-items:center">
+<div class="hi"><span class="ic">⭐</span><span id="hud-score">0</span></div>
+<div class="hi lives-display" id="hud-lives">❤️❤️❤️</div>
 </div>
 </div>
-<div id="arcade-overlay">
-<div id="arcade-hud"><span id="arcade-title">🐸 FROGGER</span><span id="arcade-info">❤️❤️❤️</span></div>
-<canvas id="arcade-canvas"></canvas>
-<div id="arcade-controls"></div>
+<div id="canvas-wrap"><canvas id="game-canvas"></canvas></div>
+<div id="controls">
+<div class="dpad">
+<div class="dbtn blank"></div>
+<button class="dbtn" id="b-up" ontouchstart="">▲</button>
+<div class="dbtn blank"></div>
+<button class="dbtn" id="b-left" ontouchstart="">◀</button>
+<div class="dbtn blank" style="background:rgba(76,175,80,.05);border-color:rgba(76,175,80,.1);border-radius:14px"></div>
+<button class="dbtn" id="b-right" ontouchstart="">▶</button>
+<div class="dbtn blank"></div>
+<button class="dbtn" id="b-down" ontouchstart="">▼</button>
+<div class="dbtn blank"></div>
 </div>
-<div id="inventory-overlay" onclick="toggleInventory()">
-<div class="inv-box" onclick="event.stopPropagation()">
-<div class="inv-title">🎒 Inventory</div>
-<div class="inv-grid" id="inv-grid"></div>
-<button class="game-btn blue full" onclick="toggleInventory()" ontouchstart="" style="margin:0 auto;display:block">Close</button>
+<div class="ctrl-info">
+<span>Tap arrows<br>to hop!</span>
 </div>
 </div>
-<div id="victory-screen">
-<div class="victory-title">🐔 THE CHICKENS ARE DEFEATED! 🐔</div>
-<div id="victory-content"></div>
-<button class="btn-play" onclick="location.reload()" ontouchstart="">🔄 Play Again</button>
+<div id="level-banner"><div class="banner-emoji" id="ban-emoji"></div><div class="banner-text" id="ban-text"></div><div class="banner-sub" id="ban-sub"></div></div>
 </div>
-<div id="transition-overlay"></div>
+
+<!-- MATH OVERLAY -->
+<div id="math-overlay">
+<div id="math-box">
+<div id="math-title"></div>
+<div id="math-q"></div>
+<div id="math-display">_</div>
+<div class="numpad" id="numpad"></div>
+<div id="math-fb"></div>
+<div id="math-attempts"></div>
+<button id="math-next" ontouchstart="">Next Level ➜</button>
 </div>
+</div>
+
+<!-- VICTORY -->
+<div id="victory">
+<div class="vtitle">🐸 LEAP OF LOGIC CHAMPION! 🏆</div>
+<div class="vtext" id="v-text"></div>
+<div class="vstats" id="v-stats"></div>
+<button class="play-btn" onclick="location.reload()" ontouchstart="">🔄 Play Again</button>
+</div>
+
+<div id="fade"></div>
+</div>
+
 <script>
-const G={hp:100,maxHp:100,gems:0,keys:0,inventory:[],puzzlesSolved:0,puzzlesTotal:0,wrongAnswers:0,currentScene:'',flags:{},startTime:0};
-const canvas=document.getElementById('scene-canvas'),ctx=canvas.getContext('2d');
-let cW,cH;
-function resizeCanvas(){const r=canvas.parentElement.getBoundingClientRect(),d=window.devicePixelRatio||1;canvas.width=r.width*d;canvas.height=r.height*d;canvas.style.width=r.width+'px';canvas.style.height=r.height+'px';ctx.setTransform(d,0,0,d,0,0);cW=r.width;cH=r.height;if(G.currentScene&&scenes[G.currentScene])scenes[G.currentScene].draw()}
-window.addEventListener('resize',resizeCanvas);
-function drawSky(c){const g=ctx.createLinearGradient(0,0,0,cH);c.forEach((v,i)=>g.addColorStop(i/(c.length-1),v));ctx.fillStyle=g;ctx.fillRect(0,0,cW,cH)}
-function drawGround(y,c1,c2){const g=ctx.createLinearGradient(0,y,0,cH);g.addColorStop(0,c1);g.addColorStop(1,c2);ctx.fillStyle=g;ctx.fillRect(0,y,cW,cH-y)}
-function drawMountains(col,yB,n,h){ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(0,yB);for(let i=0;i<=n;i++){const x=(cW/n)*i,py=yB-h*(.5+.5*Math.sin(i*2.7+.5));if(!i)ctx.lineTo(x,py);else{ctx.lineTo(x-cW/n/2,py);ctx.lineTo(x,yB-h*.2)}}ctx.lineTo(cW,yB);ctx.closePath();ctx.fill()}
-function drawTree(x,y,s,tc,lc){ctx.fillStyle=tc;ctx.fillRect(x-s*.1,y-s*.3,s*.2,s*.5);ctx.fillStyle=lc;ctx.beginPath();ctx.arc(x,y-s*.5,s*.4,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x-s*.25,y-s*.35,s*.3,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x+s*.25,y-s*.35,s*.3,0,Math.PI*2);ctx.fill()}
-function drawBuilding(x,y,w,h,wc,rc,dc){ctx.fillStyle=wc;ctx.fillRect(x,y,w,h);ctx.fillStyle=rc;ctx.beginPath();ctx.moveTo(x-10,y);ctx.lineTo(x+w/2,y-h*.4);ctx.lineTo(x+w+10,y);ctx.closePath();ctx.fill();ctx.fillStyle=dc;ctx.fillRect(x+w*.35,y+h*.5,w*.3,h*.5)}
-function drawCrystal(x,y,s,c){ctx.fillStyle=c;ctx.globalAlpha=.8;ctx.beginPath();ctx.moveTo(x,y-s);ctx.lineTo(x+s*.4,y);ctx.lineTo(x,y+s*.3);ctx.lineTo(x-s*.4,y);ctx.closePath();ctx.fill();ctx.globalAlpha=.4;ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(x,y-s);ctx.lineTo(x+s*.1,y-s*.2);ctx.lineTo(x-s*.15,y);ctx.closePath();ctx.fill();ctx.globalAlpha=1}
-function drawChar(x,y,s){ctx.fillStyle='#4FC3F7';ctx.beginPath();ctx.roundRect(x-s*.4,y-s*.3,s*.8,s*.7,s*.15);ctx.fill();ctx.fillStyle='#FFCC80';ctx.beginPath();ctx.arc(x,y-s*.55,s*.35,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x-s*.12,y-s*.6,s*.1,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x+s*.12,y-s*.6,s*.1,0,Math.PI*2);ctx.fill();ctx.fillStyle='#333';ctx.beginPath();ctx.arc(x-s*.1,y-s*.6,s*.05,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x+s*.14,y-s*.6,s*.05,0,Math.PI*2);ctx.fill();ctx.fillStyle='#5D4037';ctx.beginPath();ctx.arc(x,y-s*.78,s*.28,Math.PI,Math.PI*2);ctx.fill();ctx.fillRect(x-s*.34,y-s*.75,s*.12,s*.2);ctx.strokeStyle='#5D4037';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y-s*.45,s*.1,.1*Math.PI,.9*Math.PI);ctx.stroke();ctx.fillStyle='#E53935';ctx.beginPath();ctx.moveTo(x-s*.35,y-s*.25);ctx.lineTo(x-s*.5,y+s*.4);ctx.lineTo(x-s*.1,y+s*.35);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(x+s*.35,y-s*.25);ctx.lineTo(x+s*.5,y+s*.4);ctx.lineTo(x+s*.1,y+s*.35);ctx.closePath();ctx.fill();ctx.fillStyle='#795548';ctx.beginPath();ctx.ellipse(x-s*.18,y+s*.4,s*.14,s*.08,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(x+s*.18,y+s*.4,s*.14,s*.08,0,0,Math.PI*2);ctx.fill()}
-function drawChicken(x,y,s,evil){ctx.fillStyle=evil?'#4A148C':'#FFF9C4';ctx.beginPath();ctx.ellipse(x,y,s*.4,s*.35,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=evil?'#6A1B9A':'#FFFDE7';ctx.beginPath();ctx.arc(x+s*.25,y-s*.25,s*.22,0,Math.PI*2);ctx.fill();ctx.fillStyle='#FF8F00';ctx.beginPath();ctx.moveTo(x+s*.45,y-s*.25);ctx.lineTo(x+s*.6,y-s*.2);ctx.lineTo(x+s*.45,y-s*.15);ctx.closePath();ctx.fill();ctx.fillStyle=evil?'#F44336':'#333';ctx.beginPath();ctx.arc(x+s*.32,y-s*.3,s*.05,0,Math.PI*2);ctx.fill();ctx.fillStyle='#F44336';ctx.beginPath();ctx.arc(x+s*.2,y-s*.42,s*.08,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x+s*.3,y-s*.44,s*.07,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#FF8F00';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-s*.1,y+s*.3);ctx.lineTo(x-s*.15,y+s*.5);ctx.stroke();ctx.beginPath();ctx.moveTo(x+s*.1,y+s*.3);ctx.lineTo(x+s*.15,y+s*.5);ctx.stroke();if(evil){ctx.strokeStyle='rgba(156,39,176,.4)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,s*.55,0,Math.PI*2);ctx.stroke()}}
-function drawEmoji(e,x,y,s){ctx.font=s+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e,x,y)}
+// ===================== QUESTIONS =====================
+const ALL_QUESTIONS=[
+{q:"A pizza has 12 slices. You eat ¼ of them, your friend eats ⅓ of the original 12. How many slices are LEFT?",a:5},
+{q:"A bag has 180 lollies. You give ⅓ to Sam, then ¼ of what's LEFT to Mia. How many lollies do YOU still have?",a:90},
+{q:"A tank holds 600 litres and is currently ⅗ full. You use half of the water that's in it. How many litres remain in the tank?",a:180},
+{q:"A movie starts at 10:45 AM and runs for 1 hour 50 minutes. What time does it end? (Write the time as four digits — for example, 10:45 AM = 1045)",a:1235},
+{q:"Buses leave every 12 minutes starting at 8:00 AM. You arrive at the stop at 8:50 AM. How many minutes do you wait for the next bus?",a:10},
+{q:"A train departs at 6:15 AM and arrives at 5:45 PM the same day. How many minutes long is the entire journey?",a:690},
+{q:"You have $50. You buy 4 books at $7 each and 2 pens at $3 each. How many dollars change do you get?",a:16},
+{q:"A shop runs a 'buy 2 get 1 free' deal on $6 cupcakes. You want to take home 10 cupcakes. How many dollars do you pay?",a:42},
+{q:"A rectangle is 15 metres long and 8 metres wide. What is its perimeter in metres?",a:46},
+{q:"A square room has a perimeter of 48 metres. What is its area in square metres?",a:144},
+{q:"A triangle has a base of 12 cm and a height of 9 cm. What is its area in square centimetres?",a:54},
+{q:"A car drives at 80 km/h for exactly 45 minutes. How many kilometres does it travel?",a:60},
+{q:"You cycle 24 km in 2 hours. Your friend cycles at 15 km/h for the same 2 hours. How many MORE kilometres does your friend cover than you?",a:6},
+{q:"A recipe for 4 people requires 300 g of flour. How many grams of flour do you need to make the same recipe for 6 people?",a:450},
+{q:"Red and blue marbles are in a bag in the ratio 3 : 5. There are 40 marbles in total. How many RED marbles are there?",a:15},
+{q:"You own 5 different shirts and 4 different pairs of shorts. How many unique outfit combinations can you make?",a:20},
+{q:"⭐ + ⭐ + 🔶 = 25 and ⭐ + 🔶 + 🔶 = 35. What is the value of ⭐?",a:5},
+];
 
-function setSpeaker(n){document.getElementById('dialog-speaker').textContent=n}
-function setDialog(t){document.getElementById('dialog-text').textContent=t}
-function clearButtons(){document.getElementById('buttons-area').innerHTML=''}
-function addBtn(text,color,fn){const b=document.createElement('button');b.className='game-btn '+color;b.textContent=text;b.onclick=fn;b.setAttribute('ontouchstart','');document.getElementById('buttons-area').appendChild(b);return b}
-function setLoc(n){document.getElementById('hud-location').textContent=n}
-function updateHUD(){document.getElementById('gem-count').textContent=G.gems;document.getElementById('key-count').textContent=G.keys;const p=G.hp/G.maxHp*100;document.getElementById('hud-hp-fill').style.width=p+'%';document.getElementById('hud-hp-fill').style.background=p>50?'linear-gradient(90deg,#4CAF50,#8BC34A)':p>25?'linear-gradient(90deg,#FFA726,#FF9800)':'linear-gradient(90deg,#EF5350,#F44336)'}
-function notify(t,ty){const n=document.createElement('div');n.className='notification '+ty;n.textContent=t;document.getElementById('game-container').appendChild(n);requestAnimationFrame(()=>n.classList.add('show'));setTimeout(()=>{n.classList.remove('show');setTimeout(()=>n.remove(),300)},1800)}
-function addGems(n){G.gems+=n;updateHUD();notify('+'+n+' 💎','gem')}
-function addKey(){G.keys++;updateHUD();notify('+1 🔑','key')}
-function addItem(e,n){G.inventory.push({emoji:e,name:n});notify(e+' '+n+'!','item')}
-function hasItem(n){return G.inventory.some(i=>i.name===n)}
-function takeDmg(n){G.hp=Math.max(0,G.hp-n);updateHUD();notify('-'+n+' ❤️','damage')}
-function heal(n){G.hp=Math.min(G.maxHp,G.hp+n);updateHUD();notify('+'+n+' ❤️','hp')}
-function toggleInventory(){const el=document.getElementById('inventory-overlay');el.classList.toggle('active');if(el.classList.contains('active')){const g=document.getElementById('inv-grid');g.innerHTML='';for(let i=0;i<8;i++){const s=document.createElement('div');s.className='inv-slot'+(G.inventory[i]?' filled':'');s.textContent=G.inventory[i]?G.inventory[i].emoji:'';g.appendChild(s)}}}
-function sf(f){G.flags[f]=true}function hf(f){return!!G.flags[f]}
-async function transition(cb){const el=document.getElementById('transition-overlay');el.classList.add('active');await slp(400);cb();await slp(200);el.classList.remove('active')}
+// ===================== THEMES =====================
+const THEMES=[
+{name:'Sunny Meadow',sky:['#87CEEB','#B3E5FC','#E8F5E9'],ground:'#4CAF50',safe:'#66BB6A',road:'#555',roadLine:'#FFD700',water:'#1565C0',logCol:'#795548',carCols:['#E53935','#FF9800','#8E24AA','#00ACC1'],goalCol:'#FFD700',deco:['🌻','🌼','🌳']},
+{name:'Desert Highway',sky:['#FF8F00','#FFCC80','#FFF8E1'],ground:'#D2B48C',safe:'#C8A97E',road:'#444',roadLine:'#FFA000',water:'#0277BD',logCol:'#6D4C41',carCols:['#F44336','#FF6F00','#AD1457','#1565C0'],goalCol:'#FFD700',deco:['🌵','☀️','🏜️']},
+{name:'Misty River',sky:['#546E7A','#78909C','#B0BEC5','#CFD8DC'],ground:'#607D8B',safe:'#78909C',road:'#37474F',roadLine:'#90A4AE',water:'#0D47A1',logCol:'#5D4037',carCols:['#B0BEC5','#78909C','#546E7A','#90A4AE'],goalCol:'#FFD700',deco:['🌫️','🌧️','🦆']},
+{name:'Neon City',sky:['#0a0a2e','#1a1a3e','#2a0a3e'],ground:'#1a1a2e',safe:'#1a1a3e',road:'#111',roadLine:'#E040FB',water:'#1A237E',logCol:'#4A148C',carCols:['#E040FB','#00E5FF','#76FF03','#FFEA00'],goalCol:'#76FF03',deco:['🏙️','💡','🌃']},
+{name:'Spooky Swamp',sky:['#1a0a2e','#2d1b40','#1a2e1a'],ground:'#2E7D32',safe:'#33691E',road:'#263238',roadLine:'#9C27B0',water:'#1B5E20',logCol:'#3E2723',carCols:['#9C27B0','#7B1FA2','#4A148C','#E040FB'],goalCol:'#FFD700',deco:['🦇','🕯️','💀']},
+{name:'Snowy Pass',sky:['#B3E5FC','#E1F5FE','#FFFFFF'],ground:'#E0E0E0',safe:'#F5F5F5',road:'#616161',roadLine:'#BDBDBD',water:'#0277BD',logCol:'#795548',carCols:['#2196F3','#1565C0','#EF5350','#FF9800'],goalCol:'#FFD700',deco:['❄️','⛄','🌨️']},
+{name:'Jungle Trail',sky:['#1B5E20','#2E7D32','#388E3C','#4CAF50'],ground:'#2E7D32',safe:'#388E3C',road:'#4E342E',roadLine:'#8D6E63',water:'#00695C',logCol:'#3E2723',carCols:['#FF8F00','#F44336','#7B1FA2','#00BFA5'],goalCol:'#FFD700',deco:['🌴','🐒','🦜']},
+{name:'Volcanic Road',sky:['#BF360C','#E65100','#FF6D00','#FFAB00'],ground:'#3E2723',safe:'#4E342E',road:'#212121',roadLine:'#FF6D00',water:'#D84315',logCol:'#BF360C',carCols:['#FF6D00','#FFAB00','#F44336','#FFD600'],goalCol:'#FFD600',deco:['🌋','🔥','💎']},
+{name:'Moonlit Highway',sky:['#0a0a2e','#1a1a4e','#283593'],ground:'#1a237e',safe:'#283593',road:'#0d0d1a',roadLine:'#5C6BC0',water:'#0D47A1',logCol:'#3E2723',carCols:['#FDD835','#FFEE58','#FFF176','#FFCA28'],goalCol:'#FDD835',deco:['🌙','⭐','🦉']},
+{name:'Candy Land',sky:['#F8BBD0','#F48FB1','#CE93D8','#B39DDB'],ground:'#CE93D8',safe:'#E1BEE7',road:'#7B1FA2',roadLine:'#F48FB1',water:'#4FC3F7',logCol:'#F06292',carCols:['#FF4081','#E040FB','#7C4DFF','#18FFFF'],goalCol:'#FFD740',deco:['🍭','🧁','🍬']},
+];
+
+// ===================== LEVEL CONFIG =====================
+const LANE_CONFIGS=[
+['goal','safe','safe','safe','safe','road','road','road','start'],
+['goal','safe','safe','safe','road','road','road','road','start'],
+['goal','safe','safe','road','road','road','road','road','start'],
+['goal','water','water','safe','safe','road','road','road','start'],
+['goal','water','water','safe','road','road','road','road','start'],
+['goal','water','water','water','safe','road','road','road','start'],
+['goal','water','water','water','road','road','road','road','start'],
+];
+function getLaneConfig(lv){return LANE_CONFIGS[Math.min(lv-1,LANE_CONFIGS.length-1)]}
+function getLaneSpeed(lv){return .014+lv*.0035}
+function getCarsPerLane(lv){return lv<=3?2:lv<=8?Math.min(2+Math.floor((lv-3)/2),4):Math.min(3+Math.floor((lv-6)/2),5)}
+function getLogCount(lv){return lv<=6?2:Math.min(2+Math.floor((lv-6)/3),4)}
+function getLogWidth(lv){return lv<=5?2.5:lv<=10?2.2:lv<=14?1.9:1.6}
+function getCarWidth(lv){return lv<=4?1.6:lv<=9?1.4:1.2}
+
+// ===================== GAME STATE =====================
+const S={
+level:1,lives:3,score:0,totalWrong:0,firstTries:0,startTime:0,
+questions:[],qIndex:0,
+frog:{x:4,y:8},lanes:[],dead:false,deadTimer:0,won:false,invincible:0,
+animId:null,running:false
+};
+
+const COLS=9;
+let ROWS=9;
+const cv=document.getElementById('game-canvas'),cx=cv.getContext('2d');
+let CW,CH,CELL;
+
+// ===================== HELPERS =====================
 function slp(ms){return new Promise(r=>setTimeout(r,ms))}
-function go(n){transition(()=>{G.currentScene=n;resizeCanvas();scenes[n].enter()})}
+async function fade(cb){document.getElementById('fade').classList.add('on');await slp(350);if(cb)cb();await slp(100);document.getElementById('fade').classList.remove('on')}
 
-// =========== PUZZLE — MUST GET RIGHT ===========
-function showPuzzle(title,desc,opts,ci){
-return new Promise(res=>{
-G.puzzlesTotal++;
-const ov=document.getElementById('puzzle-overlay'),ct=document.getElementById('puzzle-content');
-document.getElementById('puzzle-title').textContent=title;
-document.getElementById('puzzle-desc').textContent=desc;
-document.getElementById('puzzle-feedback').textContent='';
-document.getElementById('puzzle-feedback').className='';
-document.getElementById('puzzle-continue').style.display='none';
-ct.innerHTML='';
-let attempts=0;
-function buildOptions(){
-ct.innerHTML='';
-opts.forEach((o,i)=>{
-const b=document.createElement('div');b.className='puzzle-option';b.textContent=o;
-b.onclick=()=>{
-const fb=document.getElementById('puzzle-feedback');
-if(i===ci){
-b.classList.add('correct');
-Array.from(ct.children).forEach((c,j)=>{if(j!==ci)c.classList.add('disabled')});
-fb.textContent=attempts===0?'⭐ Correct! First try!':'⭐ Correct!';
-fb.className='correct-fb';
-if(attempts===0)G.puzzlesSolved++;
-document.getElementById('puzzle-continue').style.display='block';
-res(attempts===0);
-}else{
-attempts++;G.wrongAnswers++;
-b.classList.add('wrong');
-fb.textContent='❌ Nope! Try again — you must get it right!';
-fb.className='wrong-fb';
-b.style.pointerEvents='none';b.style.opacity='.35';
-// Shake the box
-document.getElementById('puzzle-box').style.animation='shake 0.4s ease';
-setTimeout(()=>document.getElementById('puzzle-box').style.animation='',500);
-}};ct.appendChild(b)});}
-buildOptions();
-ov.classList.add('active');
-})}
-
-function showNumpad(title,desc,ans){
-return new Promise(res=>{
-G.puzzlesTotal++;
-const ov=document.getElementById('puzzle-overlay'),ct=document.getElementById('puzzle-content');
-document.getElementById('puzzle-title').textContent=title;
-document.getElementById('puzzle-desc').textContent=desc;
-document.getElementById('puzzle-feedback').textContent='';
-document.getElementById('puzzle-feedback').className='';
-document.getElementById('puzzle-continue').style.display='none';
-ct.innerHTML='';
-let iv='',attempts=0;
-const d=document.createElement('div');d.id='puzzle-input-display';d.textContent='_';ct.appendChild(d);
-const np=document.createElement('div');np.className='numpad';
-for(let i=1;i<=9;i++){const b=document.createElement('button');b.className='numpad-btn';b.textContent=i;b.onclick=()=>{if(iv.length<6){iv+=i;d.textContent=iv}};np.appendChild(b)}
-const cb=document.createElement('button');cb.className='numpad-btn clear';cb.textContent='⌫';cb.onclick=()=>{iv=iv.slice(0,-1);d.textContent=iv||'_'};np.appendChild(cb);
-const zb=document.createElement('button');zb.className='numpad-btn';zb.textContent='0';zb.onclick=()=>{if(iv.length<6){iv+='0';d.textContent=iv}};np.appendChild(zb);
-const eb=document.createElement('button');eb.className='numpad-btn enter';eb.textContent='✓';eb.onclick=()=>{
-if(!iv)return;
-const fb=document.getElementById('puzzle-feedback');
-if(parseInt(iv)===ans){
-fb.textContent=attempts===0?'⭐ Correct! First try!':'⭐ Correct!';
-fb.className='correct-fb';
-if(attempts===0)G.puzzlesSolved++;
-document.getElementById('puzzle-continue').style.display='block';
-res(attempts===0);
-}else{
-attempts++;G.wrongAnswers++;
-iv='';d.textContent='_';
-fb.textContent='❌ Not right! Try again!';
-fb.className='wrong-fb';
-document.getElementById('puzzle-box').style.animation='shake 0.4s ease';
-setTimeout(()=>document.getElementById('puzzle-box').style.animation='',500);
-}};np.appendChild(eb);ct.appendChild(np);ov.classList.add('active')})}
-
-function closePuzzle(){document.getElementById('puzzle-overlay').classList.remove('active')}
-
-// =========== FROGGER MINI-GAME ===========
-function startFrogger(){
-return new Promise(resolve=>{
-const ov=document.getElementById('arcade-overlay');
-const ac=document.getElementById('arcade-canvas');
-const actx=ac.getContext('2d');
-const ctrl=document.getElementById('arcade-controls');
-ov.classList.add('active');
-document.getElementById('arcade-title').textContent='🐸 CHICKEN ROAD — Cross to safety!';
-
-// Sizing
-const containerW=ov.clientWidth,containerH=ov.clientHeight-50;
-const ctrlH=180;
-const availH=containerH-ctrlH;
-const COLS=9,ROWS=9;
-const CELL=Math.min(Math.floor(containerW/COLS),Math.floor(availH/ROWS));
-const W=COLS*CELL,H=ROWS*CELL;
-const dpr=window.devicePixelRatio||1;
-ac.width=W*dpr;ac.height=H*dpr;
-ac.style.width=W+'px';ac.style.height=H+'px';
-actx.setTransform(dpr,0,0,dpr,0,0);
-
-let frog={x:4,y:8},lives=3,won=false,dead=false,deadT=0;
-
-// Lane setup: row 0=goal, 1-3=water/logs, 4=safe, 5-7=road/cars, 8=start
+// ===================== BUILD LEVEL =====================
+function buildLevel(lv){
+const config=getLaneConfig(lv);
+ROWS=config.length;
+const baseSpd=getLaneSpeed(lv);
+const nCars=getCarsPerLane(lv);
+const nLogs=getLogCount(lv);
+const logW=getLogWidth(lv);
+const carW=getCarWidth(lv);
 const lanes=[];
+let roadIdx=0,waterIdx=0;
 for(let r=0;r<ROWS;r++){
-if(r===0)lanes.push({type:'goal'});
-else if(r>=1&&r<=3){
-const dir=r%2?1:-1,spd=.015+Math.random()*.015;
-const items=[];const cnt=2+Math.floor(Math.random()*1);
-for(let i=0;i<cnt;i++)items.push({x:i*(COLS/cnt)+Math.random()*2,w:2+Math.floor(Math.random()*1.5)});
-lanes.push({type:'log',dir,spd,items});
-}else if(r===4)lanes.push({type:'safe'});
-else if(r>=5&&r<=7){
-const dir=r%2?1:-1,spd=.018+Math.random()*.02;
-const items=[];const cnt=2+Math.floor(Math.random()*1);
-for(let i=0;i<cnt;i++)items.push({x:i*(COLS/cnt)+Math.random()*2,w:1.2+Math.random()*.8});
-lanes.push({type:'car',dir,spd,items});
-}else lanes.push({type:'safe'});
+const type=config[r];
+if(type==='road'){
+const dir=roadIdx%2?1:-1;
+const spd=baseSpd*(.8+Math.random()*.5);
+const items=[];
+for(let i=0;i<nCars;i++){
+const gap=COLS/nCars;
+items.push({x:i*gap+Math.random()*(gap-carW),w:carW+Math.random()*.3});
+}
+lanes.push({type,dir,spd,items});
+roadIdx++;
+}else if(type==='water'){
+const dir=waterIdx%2?1:-1;
+const spd=baseSpd*(.6+Math.random()*.4);
+const items=[];
+for(let i=0;i<nLogs;i++){
+const gap=COLS/nLogs;
+items.push({x:i*gap+Math.random()*(gap-logW),w:logW+Math.random()*.4});
+}
+lanes.push({type,dir,spd,items});
+waterIdx++;
+}else{
+lanes.push({type,dir:0,spd:0,items:[]});
+}
+}
+return lanes;
 }
 
-function moveFrog(dx,dy){
-if(dead||won)return;
-frog.x=Math.max(0,Math.min(COLS-1,frog.x+dx));
-frog.y=Math.max(0,Math.min(ROWS-1,frog.y+dy));
+// ===================== RESIZE =====================
+function resizeGame(){
+const wrap=document.getElementById('canvas-wrap');
+const rect=wrap.getBoundingClientRect();
+const maxW=rect.width,maxH=rect.height;
+CELL=Math.floor(Math.min(maxW/COLS,maxH/ROWS));
+CW=COLS*CELL;CH=ROWS*CELL;
+const dpr=window.devicePixelRatio||1;
+cv.width=CW*dpr;cv.height=CH*dpr;
+cv.style.width=CW+'px';cv.style.height=CH+'px';
+cx.setTransform(dpr,0,0,dpr,0,0);
 }
 
-// Touch controls
-ctrl.innerHTML=`<div class="dpad-area">
-<div></div><button class="dpad-btn up" ontouchstart="">▲</button><div></div>
-<button class="dpad-btn left" ontouchstart="">◀</button><div class="dpad-center"></div><button class="dpad-btn right" ontouchstart="">▶</button>
-<div></div><button class="dpad-btn down" ontouchstart="">▼</button><div></div>
-</div>`;
-ctrl.querySelector('.up').onclick=()=>moveFrog(0,-1);
-ctrl.querySelector('.down').onclick=()=>moveFrog(0,1);
-ctrl.querySelector('.left').onclick=()=>moveFrog(-1,0);
-ctrl.querySelector('.right').onclick=()=>moveFrog(1,0);
+// ===================== DRAW =====================
+function draw(){
+const theme=THEMES[(S.level-1)%THEMES.length];
+cx.clearRect(0,0,CW,CH);
 
-let animId;
-const carColors=['#e74c3c','#e67e22','#9b59b6','#1abc9c','#f39c12'];
+// Draw lanes
+for(let r=0;r<ROWS;r++){
+const lane=S.lanes[r];
+let bg;
+if(lane.type==='goal')bg=theme.goalCol;
+else if(lane.type==='road')bg=theme.road;
+else if(lane.type==='water')bg=theme.water;
+else if(lane.type==='start')bg=theme.ground;
+else bg=theme.safe;
+cx.fillStyle=bg;
+cx.fillRect(0,r*CELL,CW,CELL);
 
-function loop(){
-// Update
-if(dead){deadT++;if(deadT>40){dead=false;deadT=0;frog={x:4,y:8}}}
+// Road markings
+if(lane.type==='road'){
+cx.setLineDash([CELL*.3,CELL*.3]);
+cx.strokeStyle=theme.roadLine+'66';
+cx.lineWidth=2;
+cx.beginPath();cx.moveTo(0,r*CELL+CELL/2);cx.lineTo(CW,r*CELL+CELL/2);cx.stroke();
+cx.setLineDash([]);
+}
 
-lanes.forEach(l=>{
-if(l.type==='car'||l.type==='log'){
-l.items.forEach(it=>{
-it.x+=l.spd*l.dir;
+// Draw cars
+if(lane.type==='road'){
+lane.items.forEach((c,ci)=>{
+const col=theme.carCols[ci%theme.carCols.length];
+const rx=c.x*CELL,ry=r*CELL+4,rw=c.w*CELL,rh=CELL-8;
+cx.fillStyle=col;
+cx.beginPath();cx.roundRect(rx,ry,rw,rh,5);cx.fill();
+// Windows
+cx.fillStyle='rgba(255,255,255,.35)';
+const winX=lane.dir>0?rx+rw*.15:rx+rw*.45;
+cx.fillRect(winX,ry+3,rw*.35,rh*.4);
+// Headlights
+cx.fillStyle='#FDD835';
+const hlX=lane.dir>0?rx+rw-4:rx;
+cx.fillRect(hlX,ry+3,4,4);
+cx.fillRect(hlX,ry+rh-7,4,4);
+});
+}
+
+// Draw logs
+if(lane.type==='water'){
+lane.items.forEach(lg=>{
+const rx=lg.x*CELL,ry=r*CELL+3,rw=lg.w*CELL,rh=CELL-6;
+cx.fillStyle=theme.logCol;
+cx.beginPath();cx.roundRect(rx,ry,rw,rh,6);cx.fill();
+// Wood grain
+cx.strokeStyle='rgba(0,0,0,.15)';cx.lineWidth=1;
+for(let li=10;li<rw;li+=12){cx.beginPath();cx.moveTo(rx+li,ry+2);cx.lineTo(rx+li,ry+rh-2);cx.stroke();}
+// Highlight
+cx.fillStyle='rgba(255,255,255,.08)';
+cx.fillRect(rx+3,ry+2,rw-6,rh*.3);
+});
+}
+
+// Goal text
+if(lane.type==='goal'){
+cx.fillStyle='#000';cx.globalAlpha=.5;
+cx.font='bold '+Math.floor(CELL*.45)+'px Lilita One,cursive';
+cx.textAlign='center';cx.textBaseline='middle';
+cx.fillText('★ SAFE ZONE ★',CW/2,r*CELL+CELL/2+1);
+cx.globalAlpha=1;cx.fillStyle='#fff';
+cx.fillText('★ SAFE ZONE ★',CW/2,r*CELL+CELL/2);
+}
+
+// Safe zone decorations
+if(lane.type==='safe'||lane.type==='start'){
+const decos=theme.deco;
+cx.font=Math.floor(CELL*.4)+'px sans-serif';
+cx.textAlign='center';cx.textBaseline='middle';
+for(let d=0;d<COLS;d+=3){
+cx.fillText(decos[(r+d)%decos.length],(d+.5)*CELL,r*CELL+CELL/2);
+}
+}
+}
+
+// Draw frog
+if(!S.dead){
+const fx=S.frog.x*CELL+CELL/2,fy=S.frog.y*CELL+CELL/2;
+const flash=S.invincible>0&&Math.floor(S.invincible/4)%2;
+if(!flash){
+// Shadow
+cx.fillStyle='rgba(0,0,0,.2)';
+cx.beginPath();cx.ellipse(fx+2,fy+4,CELL*.35,CELL*.2,0,0,Math.PI*2);cx.fill();
+// Body
+cx.fillStyle='#43A047';
+cx.beginPath();cx.ellipse(fx,fy+2,CELL*.32,CELL*.36,0,0,Math.PI*2);cx.fill();
+// Belly
+cx.fillStyle='#A5D6A7';
+cx.beginPath();cx.ellipse(fx,fy+6,CELL*.2,CELL*.2,0,0,Math.PI*2);cx.fill();
+// Eyes
+const eyeY=fy-CELL*.18;
+cx.fillStyle='#fff';
+cx.beginPath();cx.arc(fx-CELL*.13,eyeY,CELL*.11,0,Math.PI*2);cx.fill();
+cx.beginPath();cx.arc(fx+CELL*.13,eyeY,CELL*.11,0,Math.PI*2);cx.fill();
+cx.fillStyle='#1B5E20';
+cx.beginPath();cx.arc(fx-CELL*.12,eyeY,CELL*.06,0,Math.PI*2);cx.fill();
+cx.beginPath();cx.arc(fx+CELL*.14,eyeY,CELL*.06,0,Math.PI*2);cx.fill();
+// Pupils
+cx.fillStyle='#000';
+cx.beginPath();cx.arc(fx-CELL*.11,eyeY,CELL*.03,0,Math.PI*2);cx.fill();
+cx.beginPath();cx.arc(fx+CELL*.15,eyeY,CELL*.03,0,Math.PI*2);cx.fill();
+// Mouth
+cx.strokeStyle='#2E7D32';cx.lineWidth=1.5;
+cx.beginPath();cx.arc(fx,fy+2,CELL*.12,.15*Math.PI,.85*Math.PI);cx.stroke();
+// Feet
+cx.fillStyle='#388E3C';
+cx.beginPath();cx.ellipse(fx-CELL*.28,fy+CELL*.25,CELL*.1,CELL*.06,.3,0,Math.PI*2);cx.fill();
+cx.beginPath();cx.ellipse(fx+CELL*.28,fy+CELL*.25,CELL*.1,CELL*.06,-.3,0,Math.PI*2);cx.fill();
+}
+}else{
+// Death animation
+const fx=S.frog.x*CELL+CELL/2,fy=S.frog.y*CELL+CELL/2;
+const lane=S.lanes[S.frog.y];
+const t=S.deadTimer/35;
+cx.globalAlpha=1-t;
+cx.font=Math.floor(CELL*.7)+'px sans-serif';cx.textAlign='center';cx.textBaseline='middle';
+cx.fillText(lane.type==='water'?'💦':'💥',fx,fy);
+cx.globalAlpha=1;
+}
+
+// Won overlay
+if(S.won){
+cx.fillStyle='rgba(0,0,0,.55)';cx.fillRect(0,0,CW,CH);
+cx.fillStyle='#4CAF50';
+cx.font='bold '+Math.floor(CELL*.9)+'px Lilita One,cursive';
+cx.textAlign='center';cx.textBaseline='middle';
+cx.fillText('✓ SAFE!',CW/2,CH/2-CELL*.2);
+cx.fillStyle='#A5D6A7';
+cx.font='bold '+Math.floor(CELL*.45)+'px Lilita One,cursive';
+cx.fillText('Level '+S.level+' Complete!',CW/2,CH/2+CELL*.5);
+}
+}
+
+// ===================== GAME LOOP =====================
+function tick(){
+if(!S.running)return;
+// Update items
+S.lanes.forEach(lane=>{
+if(lane.type==='road'||lane.type==='water'){
+lane.items.forEach(it=>{
+it.x+=lane.spd*lane.dir;
 if(it.x>COLS+2)it.x=-it.w-1;
 if(it.x<-it.w-2)it.x=COLS+1;
-});}});
-
-if(!dead&&!won){
-const lane=lanes[frog.y];
-if(lane.type==='car'){
-for(const c of lane.items){
-if(frog.x+.8>c.x&&frog.x+.2<c.x+c.w){lives--;dead=true;deadT=0;if(lives<=0){lives=3;frog={x:4,y:8}}break;}
-}}
-if(lane.type==='log'){
-let onLog=false;
-for(const lg of lane.items){
-if(frog.x+.8>lg.x&&frog.x+.2<lg.x+lg.w){onLog=true;frog.x+=lane.spd*lane.dir;break;}}
-if(!onLog){lives--;dead=true;deadT=0;if(lives<=0){lives=3;frog={x:4,y:8}}}
+});
 }
-if(frog.y===0){won=true;setTimeout(()=>{cancelAnimationFrame(animId);ov.classList.remove('active');ctrl.innerHTML='';resolve(true)},1200);}
-}
-
-document.getElementById('arcade-info').textContent='❤️'.repeat(Math.max(0,lives));
-
-// Draw
-actx.clearRect(0,0,W,H);
-for(let r=0;r<ROWS;r++){
-const lane=lanes[r];
-let bg='#2d5a27';
-if(lane.type==='car')bg='#333';
-else if(lane.type==='log')bg='#1a3a7a';
-else if(lane.type==='goal')bg='#FFD700';
-actx.fillStyle=bg;actx.fillRect(0,r*CELL,W,CELL);
-
-if(lane.type==='car'){
-lane.items.forEach((c,ci)=>{
-actx.fillStyle=carColors[ci%carColors.length];
-const rx=c.x*CELL,ry=r*CELL+3,rw=c.w*CELL,rh=CELL-6;
-actx.beginPath();actx.roundRect(rx,ry,rw,rh,5);actx.fill();
-actx.fillStyle='#FFF';actx.fillRect(rx+(lane.dir>0?rw-6:2),ry+3,4,4);
-actx.fillRect(rx+(lane.dir>0?rw-6:2),ry+rh-7,4,4);
-});}
-if(lane.type==='log'){
-lane.items.forEach(lg=>{
-actx.fillStyle='#8B4513';
-const rx=lg.x*CELL,ry=r*CELL+3,rw=lg.w*CELL,rh=CELL-6;
-actx.beginPath();actx.roundRect(rx,ry,rw,rh,6);actx.fill();
-actx.strokeStyle='#6b3410';actx.lineWidth=1;
-for(let li=0;li<rw;li+=12){actx.beginPath();actx.moveTo(rx+li,ry+2);actx.lineTo(rx+li,ry+rh-2);actx.stroke();}
-});}
-if(lane.type==='goal'){
-actx.fillStyle='#222';actx.font='bold '+CELL*.4+'px Lilita One,cursive';actx.textAlign='center';
-actx.fillText('★ SAFE ZONE ★',W/2,r*CELL+CELL*.65);
-}
-if(lane.type==='safe'&&r===4){
-actx.fillStyle='#3a7a3a';
-for(let bx=0;bx<COLS;bx+=2){actx.beginPath();actx.arc(bx*CELL+CELL/2,r*CELL+CELL/2,8,0,Math.PI*2);actx.fill();}
-}
-}
-
-// Road lines
-for(let r=5;r<=7;r++){actx.setLineDash([8,8]);actx.strokeStyle='#ffcc0055';actx.lineWidth=1;actx.beginPath();actx.moveTo(0,r*CELL);actx.lineTo(W,r*CELL);actx.stroke();actx.setLineDash([]);}
-
-// Frog
-if(!dead){
-const fx=frog.x*CELL+CELL/2,fy=frog.y*CELL+CELL/2;
-actx.fillStyle='#00e676';actx.beginPath();actx.ellipse(fx,fy,CELL*.38,CELL*.4,0,0,Math.PI*2);actx.fill();
-actx.fillStyle='#fff';actx.beginPath();actx.arc(fx-6,fy-8,4,0,Math.PI*2);actx.fill();actx.beginPath();actx.arc(fx+6,fy-8,4,0,Math.PI*2);actx.fill();
-actx.fillStyle='#000';actx.beginPath();actx.arc(fx-6,fy-8,2,0,Math.PI*2);actx.fill();actx.beginPath();actx.arc(fx+6,fy-8,2,0,Math.PI*2);actx.fill();
-}else{
-const fx=frog.x*CELL+CELL/2,fy=frog.y*CELL+CELL/2;
-actx.globalAlpha=1-deadT/40;actx.font='20px sans-serif';actx.textAlign='center';actx.fillText('💥',fx,fy+6);actx.globalAlpha=1;
-}
-
-if(won){
-actx.fillStyle='rgba(0,0,0,.6)';actx.fillRect(0,0,W,H);
-actx.fillStyle='#00ff88';actx.font='bold '+CELL*.7+'px Lilita One,cursive';actx.textAlign='center';
-actx.fillText('SAFE!',W/2,H/2);
-}
-
-animId=requestAnimationFrame(loop);
-}
-animId=requestAnimationFrame(loop);
-})}
-
-// =========== PLATFORM JUMPER MINI-GAME ===========
-function startPlatformer(numRounds){
-return new Promise(resolve=>{
-const ov=document.getElementById('arcade-overlay');
-const ac=document.getElementById('arcade-canvas');
-const actx=ac.getContext('2d');
-const ctrl=document.getElementById('arcade-controls');
-ov.classList.add('active');
-document.getElementById('arcade-title').textContent='🧮 MULTIPLY & JUMP!';
-
-const containerW=ov.clientWidth,containerH=ov.clientHeight-50;
-const ctrlH=180;
-const availH=containerH-ctrlH;
-const W=Math.min(containerW,500),H=Math.min(availH,350);
-const dpr=window.devicePixelRatio||1;
-ac.width=W*dpr;ac.height=H*dpr;
-ac.style.width=W+'px';ac.style.height=H+'px';
-actx.setTransform(dpr,0,0,dpr,0,0);
-
-let solved=0,total=numRounds||5,won=false;
-let result=null,resultT=0;
-let problem=null,platforms=[];
-
-const player={x:W/2-14,y:H-44,w:28,h:28,vx:0,vy:0,grounded:true};
-
-function genProblem(){
-const a=2+Math.floor(Math.random()*11);
-const b=2+Math.floor(Math.random()*11);
-const ans=a*b;
-const wrongs=new Set();
-while(wrongs.size<2){
-const off=Math.floor(Math.random()*20)-10;
-const w=ans+(off===0?(Math.random()>.5?3:-3):off);
-if(w!==ans&&w>0)wrongs.add(w);
-}
-const choices=[...wrongs,ans].sort(()=>Math.random()-.5);
-const platW=80;
-const spacing=(W-40)/3;
-const plats=choices.map((v,i)=>({
-x:20+i*spacing+spacing/2-platW/2,y:H-130,w:platW,h:16,value:v,color:'#6c5ce7'
-}));
-return{a,b,ans,choices,plats};
-}
-
-function nextRound(){
-problem=genProblem();
-platforms=problem.plats;
-player.x=W/2-14;player.y=H-44;player.vx=0;player.vy=0;player.grounded=true;
-result=null;
-}
-nextRound();
-
-// Controls
-let moveDir=0;
-ctrl.innerHTML=`<button class="dpad-btn" style="width:70px;height:70px;font-size:1.4rem;border-radius:16px" ontouchstart="">◀</button>
-<button class="action-btn jump" ontouchstart="">JUMP</button>
-<button class="dpad-btn" style="width:70px;height:70px;font-size:1.4rem;border-radius:16px" ontouchstart="">▶</button>`;
-const btns=ctrl.querySelectorAll('button');
-
-function setMove(d){moveDir=d}
-
-btns[0].addEventListener('touchstart',e=>{e.preventDefault();setMove(-1)},{passive:false});
-btns[0].addEventListener('touchend',e=>{e.preventDefault();setMove(0)},{passive:false});
-btns[0].addEventListener('mousedown',()=>setMove(-1));
-btns[0].addEventListener('mouseup',()=>setMove(0));
-btns[0].addEventListener('mouseleave',()=>setMove(0));
-
-btns[2].addEventListener('touchstart',e=>{e.preventDefault();setMove(1)},{passive:false});
-btns[2].addEventListener('touchend',e=>{e.preventDefault();setMove(0)},{passive:false});
-btns[2].addEventListener('mousedown',()=>setMove(1));
-btns[2].addEventListener('mouseup',()=>setMove(0));
-btns[2].addEventListener('mouseleave',()=>setMove(0));
-
-function doJump(){if(player.grounded&&!result&&!won){player.vy=-11.5;player.grounded=false;}}
-btns[1].addEventListener('touchstart',e=>{e.preventDefault();doJump()},{passive:false});
-btns[1].addEventListener('mousedown',doJump);
-
-document.getElementById('arcade-info').textContent=solved+'/'+total;
-
-let particles=[];
-let animId;
-
-function loop(){
-if(!won&&!result){
-player.vx=moveDir*4.5;
-player.vy+=.4;
-player.x+=player.vx;
-player.y+=player.vy;
-if(player.x<0)player.x=0;
-if(player.x+player.w>W)player.x=W-player.w;
-if(player.y+player.h>=H-18){player.y=H-18-player.h;player.vy=0;player.grounded=true;}
-
-platforms.forEach(pl=>{
-if(player.vy>0&&player.x+player.w>pl.x&&player.x<pl.x+pl.w&&player.y+player.h>=pl.y&&player.y+player.h<=pl.y+pl.h+14){
-player.y=pl.y-player.h;player.vy=0;player.grounded=true;
-if(pl.value===problem.ans){
-result='correct';resultT=0;solved++;
-pl.color='#00e676';
-for(let i=0;i<15;i++)particles.push({x:pl.x+pl.w/2,y:pl.y,vx:(Math.random()-.5)*7,vy:-Math.random()*5,life:35,color:['#00e676','#ffcc00','#42A5F5'][i%3]});
-document.getElementById('arcade-info').textContent=solved+'/'+total;
-if(solved>=total){won=true;setTimeout(()=>{cancelAnimationFrame(animId);ov.classList.remove('active');ctrl.innerHTML='';resolve(true)},1800);}
-}else{
-result='wrong';resultT=0;
-pl.color='#ff4444';
-}
-}});
-}
-
-if(result){
-resultT++;
-if(resultT>55&&!won)nextRound();
-}
-
-particles=particles.filter(p=>p.life>0);
-particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.15;p.life--});
-
-// Draw
-const grad=actx.createLinearGradient(0,0,0,H);
-grad.addColorStop(0,'#0a0a2e');grad.addColorStop(1,'#1a1a3e');
-actx.fillStyle=grad;actx.fillRect(0,0,W,H);
-
-// Stars
-actx.fillStyle='#ffffff22';
-for(let i=0;i<20;i++){actx.fillRect((i*137.5)%W,(i*73.3)%(H-80),2,2);}
-
-// Ground
-actx.fillStyle='#2d5a27';actx.fillRect(0,H-18,W,18);
-actx.fillStyle='#3a7a3a';actx.fillRect(0,H-18,W,3);
-
-// Platforms
-platforms.forEach(pl=>{
-actx.fillStyle=pl.color;actx.beginPath();actx.roundRect(pl.x,pl.y,pl.w,pl.h,5);actx.fill();
-actx.fillStyle='#fff';actx.font='bold 15px Lilita One,cursive';actx.textAlign='center';
-actx.fillText(pl.value,pl.x+pl.w/2,pl.y-7);
 });
 
-// Player
-actx.fillStyle='#ff6b6b';actx.beginPath();actx.roundRect(player.x,player.y,player.w,player.h,5);actx.fill();
-actx.fillStyle='#fff';actx.fillRect(player.x+5,player.y+7,6,6);actx.fillRect(player.x+17,player.y+7,6,6);
-actx.fillStyle='#000';actx.fillRect(player.x+7,player.y+9,3,3);actx.fillRect(player.x+19,player.y+9,3,3);
+// Invincibility countdown
+if(S.invincible>0)S.invincible--;
 
-// Particles
-particles.forEach(p=>{actx.fillStyle=p.color;actx.globalAlpha=p.life/35;actx.fillRect(p.x-2,p.y-2,5,5);actx.globalAlpha=1});
-
-// Problem
-actx.fillStyle='rgba(0,0,0,.7)';actx.beginPath();actx.roundRect(W/2-100,8,200,40,10);actx.fill();
-actx.fillStyle='#FFD700';actx.font='bold 18px Lilita One,cursive';actx.textAlign='center';
-actx.fillText(problem.a+' × '+problem.b+' = ?',W/2,35);
-
-if(result==='wrong'&&resultT<55){
-actx.fillStyle='#ff4444';actx.font='bold 16px Lilita One,cursive';actx.textAlign='center';
-actx.fillText('WRONG! Try again!',W/2,H/2);
+// Death timer
+if(S.dead){
+S.deadTimer++;
+if(S.deadTimer>35){
+S.dead=false;S.deadTimer=0;
+S.frog={x:Math.floor(COLS/2),y:ROWS-1};
+S.invincible=45;
+}
+draw();S.animId=requestAnimationFrame(tick);return;
 }
 
-if(won){
-actx.fillStyle='rgba(0,0,0,.6)';actx.fillRect(0,0,W,H);
-actx.fillStyle='#00ff88';actx.font='bold 22px Lilita One,cursive';actx.textAlign='center';
-actx.fillText('🎉 ALL CORRECT!',W/2,H/2-8);
-actx.fillStyle='#FFD700';actx.font='bold 13px Lilita One,cursive';
-actx.fillText('Math Champion!',W/2,H/2+18);
+if(S.won){draw();S.animId=requestAnimationFrame(tick);return;}
+
+// Collision
+if(S.invincible<=0){
+const lane=S.lanes[S.frog.y];
+if(lane.type==='road'){
+for(const c of lane.items){
+if(S.frog.x+.75>c.x&&S.frog.x+.25<c.x+c.w){
+die();break;
+}
+}
+}
+if(lane.type==='water'){
+let onLog=false;
+for(const lg of lane.items){
+if(S.frog.x+.75>lg.x&&S.frog.x+.25<lg.x+lg.w){
+onLog=true;
+S.frog.x+=lane.spd*lane.dir;
+if(S.frog.x<-0.5||S.frog.x>COLS-.5)die();
+break;
+}
+}
+if(!onLog&&!S.dead)die();
+}
 }
 
-animId=requestAnimationFrame(loop);
+// Goal
+if(S.frog.y===0&&!S.won){
+S.won=true;
+S.score+=50+S.level*10;
+updateHUD();
+setTimeout(()=>onLevelComplete(),1200);
 }
-animId=requestAnimationFrame(loop);
-})}
 
+draw();
+S.animId=requestAnimationFrame(tick);
+}
 
-// ==================== SCENES ====================
-const scenes={};
+function die(){
+S.dead=true;S.deadTimer=0;S.lives--;
+updateHUD();
+if(S.lives<=0){
+setTimeout(()=>restartLevel(),800);
+}
+}
 
-// === VILLAGE ===
-scenes.village={
-draw(){drawSky(['#87CEEB','#E0F7FA','#FFF9C4']);ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.arc(cW*.2,cH*.15,30,0,Math.PI*2);ctx.arc(cW*.24,cH*.13,25,0,Math.PI*2);ctx.arc(cW*.16,cH*.14,22,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(cW*.7,cH*.2,35,0,Math.PI*2);ctx.arc(cW*.75,cH*.18,28,0,Math.PI*2);ctx.fill();drawMountains('#A5D6A7',cH*.55,6,cH*.25);drawGround(cH*.6,'#66BB6A','#388E3C');ctx.fillStyle='#D7CCC8';ctx.fillRect(cW*.35,cH*.6,cW*.3,cH*.4);drawBuilding(cW*.05,cH*.35,cW*.18,cH*.25,'#FFCC80','#D84315','#5D4037');drawBuilding(cW*.75,cH*.38,cW*.2,cH*.22,'#B3E5FC','#1565C0','#4E342E');drawTree(cW*.5,cH*.52,cW*.08,'#5D4037','#4CAF50');drawTree(cW*.65,cH*.55,cW*.06,'#4E342E','#66BB6A');drawChicken(cW*.28,cH*.68,cW*.04,false);drawChicken(cW*.72,cH*.73,cW*.035,false);drawChicken(cW*.58,cH*.78,cW*.03,false);drawChar(cW*.5,cH*.72,cW*.07);drawEmoji('🧙',cW*.15,cH*.55,30)},
-enter(){setLoc('🏘️ Cluckington Village');this.draw();if(!hf('vi')){setSpeaker('');setDialog('You arrive in Cluckington Village. The chickens strut about with an air of menace. One of them is wearing a monocle. This feels deeply wrong.');clearButtons();addBtn('Look around','blue',()=>this.look());addBtn('Talk to Elder','purple',()=>this.elder())}else this.hub()},
-look(){setSpeaker('');setDialog('Chickens with glowing purple eyes parade like tiny, furious landlords. An elderly man with a spectacular noodle-shaped beard waves frantically. Signs read: "Haunted Swamp → N" and "Cluck Highway → E". Someone has scrawled "BEWARE OF POULTRY" in crayon.');clearButtons();addBtn('Talk to Elder','purple',()=>this.elder());if(hf('vi'))this.navBtns()},
-elder(){sf('vi');setSpeaker('🧙 Elder Noodlebeard');setDialog('HERO! Thank goodness! The Doom Chickens — those feathered catastrophes — have pilfered the Sacred Brain Gems! Without them, everyone has gone spectacularly dim. The baker tried to bake a shoe. The mayor appointed a turnip as deputy. You MUST recover the gems from the Swamp, Highway, Rooftops, and the Fortress!');clearButtons();addBtn('I heroically volunteer!','gold',()=>{addGems(5);addItem('🗡️','Rubber Sword');setSpeaker('🧙 Elder Noodlebeard');setDialog('Take this completely useless rubber sword — it makes a marvellous squeaky noise — and these starter gems. The Haunted Swamp is your first challenge. Fair warning: the chickens are profoundly ridiculous, but their puzzles require correct answers to proceed. May your brain cells be plentiful!');clearButtons();addBtn('To the Swamp!','blue',()=>go('swamp'));addBtn('Explore first','green',()=>this.hub())})},
-hub(){this.draw();setSpeaker('');setDialog('Cluckington Village. The chickens eye you with suspicion and possibly hunger. Where to?');clearButtons();addBtn('Elder 🧙','purple',()=>this.elder2());addBtn('Shop 🛒','orange',()=>this.shop());this.navBtns()},
-navBtns(){addBtn('Haunted Swamp 🐊','blue',()=>go('swamp'));if(hf('sc'))addBtn('Cluck Highway 🚗','green',()=>go('highway'));if(hf('hc'))addBtn('Sky Rooftops 🏙️','teal',()=>go('rooftops'));if(hf('rc'))addBtn('Chicken Fortress 🐔','red',()=>go('tower'))},
-elder2(){setSpeaker('🧙 Elder Noodlebeard');const d=['sc','hc','rc','tc'].filter(z=>hf(z)).length;setDialog(['The Haunted Swamp awaits! It smells absolutely ghastly, but adventure demands sacrifice. Mainly of your nostrils.','Magnificent swamping! Cluck Highway is next. You\'ll need quick reflexes AND quick maths for that one — it\'s part Frogger!','Two down, two to go! The Sky Rooftops are next. You must JUMP between multiplication platforms like some sort of mathematical kangaroo!','This is it — the Chicken Fortress! The Grand Cluck sits upon his ridiculous throne. Dethrone that preposterous poultry!','YOU DID IT! The kingdom is saved!'][d]);clearButtons();addBtn('Back','blue',()=>this.hub())},
-shop(){setSpeaker('🛒 Suspicious Goat');setDialog('"Baaaaa... I mean, welcome to my perfectly legitimate shop. Health Potion: 10 gems. Absolutely NOT brewed in a bathtub. I am definitely a goat and NOT three chickens in a trenchcoat. Please do not investigate further."');clearButtons();if(G.gems>=10)addBtn('Buy Potion (10💎)','green',()=>{G.gems-=10;updateHUD();addItem('🧪','Health Potion');setDialog('"Pleasure doing baaaaa-siness. If anyone asks, you were never here."');clearButtons();addBtn('Back','blue',()=>this.hub())});addBtn('No thanks','blue',()=>this.hub())}
+function restartLevel(){
+S.lives=3;
+startLevel(S.level);
+}
+
+// ===================== MOVE =====================
+function moveFrog(dx,dy){
+if(S.dead||S.won||!S.running)return;
+const nx=S.frog.x+dx,ny=S.frog.y+dy;
+if(nx<0||nx>=COLS||ny<0||ny>=ROWS)return;
+S.frog.x=nx;S.frog.y=ny;
+}
+
+// ===================== HUD =====================
+function updateHUD(){
+document.getElementById('hud-level').innerHTML='<span class="ic">🐸</span> Level '+S.level;
+document.getElementById('hud-score').textContent=S.score;
+document.getElementById('hud-lives').textContent='❤️'.repeat(Math.max(0,S.lives));
+const theme=THEMES[(S.level-1)%THEMES.length];
+document.getElementById('hud-theme').textContent=theme.deco[0]+' '+theme.name;
+}
+
+// ===================== START LEVEL =====================
+async function startLevel(lv){
+S.level=lv;
+S.lanes=buildLevel(lv);
+ROWS=S.lanes.length;
+S.frog={x:Math.floor(COLS/2),y:ROWS-1};
+S.dead=false;S.deadTimer=0;S.won=false;S.invincible=30;
+S.lives=Math.max(S.lives,3);
+resizeGame();updateHUD();
+
+// Show banner
+const theme=THEMES[(lv-1)%THEMES.length];
+document.getElementById('ban-emoji').textContent=theme.deco[0];
+document.getElementById('ban-text').textContent='Level '+lv;
+document.getElementById('ban-sub').textContent=theme.name+(lv>1?' — '+getLevelSubtitle(lv):'');
+const banner=document.getElementById('level-banner');
+banner.classList.add('active');
+await slp(1500);
+banner.classList.remove('active');
+
+S.running=true;
+if(S.animId)cancelAnimationFrame(S.animId);
+S.animId=requestAnimationFrame(tick);
+}
+
+function getLevelSubtitle(lv){
+if(lv<=3)return 'Watch out for traffic!';
+if(lv<=6)return 'Rivers ahead — hop on logs!';
+if(lv<=9)return 'Things are speeding up...';
+if(lv<=12)return 'Danger everywhere!';
+if(lv<=15)return 'Only the brave survive!';
+return 'Maximum chaos! 🔥';
+}
+
+// ===================== LEVEL COMPLETE → MATH =====================
+async function onLevelComplete(){
+S.running=false;
+if(S.animId){cancelAnimationFrame(S.animId);S.animId=null;}
+
+if(S.qIndex>=S.questions.length){
+showVictory();return;
+}
+
+await fade(()=>{
+showMathQuestion(S.questions[S.qIndex]);
+});
+}
+
+// ===================== MATH QUESTION =====================
+function showMathQuestion(q){
+const ov=document.getElementById('math-overlay');
+document.getElementById('math-title').textContent='🧮 Level '+S.level+' — Brain Check!';
+document.getElementById('math-q').textContent=q.q;
+document.getElementById('math-display').textContent='_';
+document.getElementById('math-fb').textContent='';
+document.getElementById('math-fb').className='';
+document.getElementById('math-attempts').textContent='';
+document.getElementById('math-next').style.display='none';
+
+let input='',done=false,attempts=0;
+
+// Build numpad
+const np=document.getElementById('numpad');
+np.innerHTML='';
+for(let i=1;i<=9;i++){
+const b=document.createElement('button');b.className='nbtn';b.textContent=i;
+b.setAttribute('ontouchstart','');
+b.onclick=()=>{if(!done&&input.length<6){input+=i;document.getElementById('math-display').textContent=input}};
+np.appendChild(b);
+}
+const cb=document.createElement('button');cb.className='nbtn clear';cb.textContent='⌫';
+cb.setAttribute('ontouchstart','');
+cb.onclick=()=>{if(!done){input=input.slice(0,-1);document.getElementById('math-display').textContent=input||'_'}};
+np.appendChild(cb);
+const zb=document.createElement('button');zb.className='nbtn';zb.textContent='0';
+zb.setAttribute('ontouchstart','');
+zb.onclick=()=>{if(!done&&input.length<6){input+='0';document.getElementById('math-display').textContent=input}};
+np.appendChild(zb);
+const eb=document.createElement('button');eb.className='nbtn enter';eb.textContent='✓';
+eb.setAttribute('ontouchstart','');
+eb.onclick=()=>{
+if(done||!input)return;
+const fb=document.getElementById('math-fb');
+if(parseInt(input)===q.a){
+done=true;
+fb.textContent=attempts===0?'⭐ Correct — first try!':'✓ Correct!';
+fb.className='ok';
+if(attempts===0)S.firstTries++;
+S.score+=attempts===0?100:40;
+updateHUD();
+document.getElementById('math-next').style.display='block';
+document.getElementById('math-next').onclick=async()=>{
+S.qIndex++;
+await fade(()=>{
+ov.classList.remove('active');
+if(S.qIndex>=S.questions.length)showVictory();
+else{S.lives=3;startLevel(S.level+1);}
+});
 };
-
-// === HAUNTED SWAMP ===
-scenes.swamp={
-draw(){drawSky(['#1a0a3e','#0d3b0d','#1a3a0a']);ctx.fillStyle='#2d4a1d';for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(cW*(.1+i*.22),cH*.45,cW*.06+Math.random()*10,0,Math.PI*2);ctx.fill()}drawGround(cH*.55,'#3d5e2f','#1a3a0a');ctx.fillStyle='#2a5a3a';ctx.globalAlpha=.5;ctx.fillRect(cW*.05,cH*.6,cW*.4,cH*.15);ctx.fillRect(cW*.5,cH*.65,cW*.45,cH*.12);ctx.globalAlpha=1;drawCrystal(cW*.15,cH*.42,35,'#4CAF50');drawCrystal(cW*.82,cH*.38,30,'#66BB6A');drawEmoji('🐊',cW*.3,cH*.72,26);drawEmoji('🐊',cW*.65,cH*.68,22);drawEmoji('🕯️',cW*.5,cH*.5,20);drawEmoji('💀',cW*.85,cH*.62,18);for(let i=0;i<10;i++){ctx.fillStyle='rgba(100,200,100,.15)';ctx.beginPath();ctx.arc(cW*Math.random(),cH*(.3+Math.random()*.5),3+Math.random()*8,0,Math.PI*2);ctx.fill()}drawChar(cW*.5,cH*.82,cW*.065);drawChicken(cW*.7,cH*.75,cW*.04,true);drawChicken(cW*.2,cH*.78,cW*.035,true)},
-enter(){setLoc('🐊 Haunted Swamp');this.draw();if(!hf('si')){setSpeaker('');setDialog('The swamp gurgles menacingly. Pale green mist curls around ancient willows and at least two crocodiles are giving you the side-eye. Doom Chickens patrol the mossy banks, clucking dark incantations. A frog on a lily pad appears to be judging your outfit.');clearButtons();addBtn('Wade in cautiously','green',()=>{sf('si');this.hub()})}else this.hub()},
-hub(){this.draw();setSpeaker('');const p1=hf('s1'),p2=hf('s2'),p3=hf('s3');if(!p1||!p2){setDialog('Two enchanted crocodiles block the path, their jaws locked with magical riddles. They look deeply unimpressed.');clearButtons();if(!p1)addBtn('Crocodile #1 🐊','green',()=>this.p1());if(!p2)addBtn('Crocodile #2 🐊','teal',()=>this.p2());addBtn('Go back','orange',()=>go('village'))}else if(!p3){setDialog('Both crocs yawn and slide aside! A ghastly swamp gate materialises, dripping with algae and bad vibes.');clearButtons();addBtn('Open the gate 🚪','gold',()=>this.p3());addBtn('Go back','orange',()=>go('village'))}else{setDialog('The swamp is peaceful. The crocodiles have taken up knitting.');clearButtons();addBtn('Return to village','blue',()=>go('village'))}},
-async p1(){
-const ok=await showPuzzle('🐊 Crocodile #1','You bake 36 cupcakes for a party. You arrange them equally onto 4 plates, then your dog eats everything on one entire plate. How many cupcakes remain?',['24','27','28','32'],1);
-// 36÷4=9 per plate. 3 plates left = 27
-sf('s1');if(ok)addGems(5);else takeDmg(10);this.hub()},
-async p2(){
-const ok=await showPuzzle('🐊 Crocodile #2','A film starts at 11:35 AM. It lasts 1 hour and 45 minutes. What time does it finish?',['12:50 PM','1:10 PM','1:20 PM','1:15 PM'],2);
-// 11:35 + 1:45 = 13:20 = 1:20 PM
-sf('s2');if(ok){addGems(5);addKey()}else takeDmg(10);this.hub()},
-async p3(){
-const ok=await showPuzzle('🚪 The Swamp Gate','A train leaves Sydney at 6:15 AM and arrives in Melbourne at 5:45 PM the same day. How long is the journey?',['10 hours 30 min','11 hours 15 min','11 hours 30 min','12 hours'],2);
-// 6:15 AM to 5:45 PM = 11 hours 30 min
-sf('s3');sf('sc');if(ok){addGems(10);addItem('🐊','Swamp Crystal')}else takeDmg(12);
-setSpeaker('');setDialog('The gate dissolves into slime! You seize the first Brain Gem. It hums with intelligence. A sign points toward Cluck Highway.');clearButtons();addBtn('To the Highway! 🚗','green',()=>go('highway'));addBtn('Back to village','blue',()=>go('village'))}
+}else{
+attempts++;S.totalWrong++;
+input='';
+document.getElementById('math-display').textContent='_';
+fb.textContent='✖ Not quite — try again!';
+fb.className='no';
+document.getElementById('math-attempts').textContent='Attempts: '+(attempts+1);
+document.getElementById('math-box').style.animation='shake 0.4s ease';
+setTimeout(()=>document.getElementById('math-box').style.animation='',500);
+}
 };
+np.appendChild(eb);
 
-// === CLUCK HIGHWAY (FROGGER ZONE) ===
-scenes.highway={
-draw(){drawSky(['#546E7A','#78909C','#B0BEC5']);ctx.fillStyle='#333';ctx.fillRect(0,cH*.3,cW,cH*.45);for(let i=0;i<10;i++){ctx.fillStyle='#FFD700';ctx.fillRect(i*cW*.12,cH*.5,cW*.06,cH*.03)}drawGround(cH*.75,'#66BB6A','#388E3C');ctx.fillStyle='#e74c3c';ctx.beginPath();ctx.roundRect(cW*.1,cH*.4,cW*.15,cH*.08,5);ctx.fill();ctx.fillStyle='#3498db';ctx.beginPath();ctx.roundRect(cW*.6,cH*.55,cW*.2,cH*.07,5);ctx.fill();drawChicken(cW*.35,cH*.45,cW*.04,true);drawChicken(cW*.75,cH*.42,cW*.035,true);drawChar(cW*.5,cH*.85,cW*.065);drawEmoji('🚦',cW*.9,cH*.38,28)},
-enter(){setLoc('🚗 Cluck Highway');this.draw();if(!hf('hi')){setSpeaker('');setDialog('A massive chicken-operated motorway stretches before you. Cars driven by roosters hurtle past at alarming speeds. One of them appears to be texting while driving. A sign reads: "CROSS IF YOU DARE — also we accept no liability." You must answer a riddle, then CROSS THE ROAD Frogger-style!');clearButtons();addBtn('Approach the crossing','blue',()=>{sf('hi');this.hub()})}else this.hub()},
-hub(){this.draw();const p1=hf('h1'),p2=hf('h2');setSpeaker('');if(!p1){setDialog('A chicken traffic warden blocks the highway entrance. "No crossing without answering my question first!" she squawks, adjusting her tiny hi-vis vest.');clearButtons();addBtn('Answer the question','orange',()=>this.p1());addBtn('Go back','blue',()=>go('village'))}else if(!p2){setDialog('The traffic warden nods approvingly. "Now you may attempt THE CROSSING." She blows her whistle with excessive drama. Time to play Frogger!');clearButtons();addBtn('🐸 CROSS THE HIGHWAY!','gold',()=>this.frogger());addBtn('Go back','blue',()=>go('village'))}else{setDialog('The highway is conquered! Tyre marks and scattered feathers mark your victory.');clearButtons();addBtn('Return to village','blue',()=>go('village'))}},
-async p1(){
-const ok=await showPuzzle('🚦 Traffic Warden','A car travels 60 kilometres per hour. How far does it travel in 45 minutes?',['40 km','45 km','50 km','55 km'],1);
-// 60 × 45/60 = 60 × 0.75 = 45 km
-sf('h1');if(ok)addGems(8);else takeDmg(10);this.hub()},
-async frogger(){
-await startFrogger();
-sf('h2');sf('hc');addGems(15);addKey();addItem('🚗','Highway Crystal');
-setSpeaker('');setDialog('YOU MADE IT ACROSS! The chickens honk furiously from their tiny cars. A sign ahead reads: "Sky Rooftops ↑". Time to go UP!');clearButtons();addBtn('To the Rooftops! 🏙️','teal',()=>go('rooftops'));addBtn('Back to village','blue',()=>go('village'))}
-};
+ov.classList.add('active');
+}
 
-// === SKY ROOFTOPS (PLATFORMER ZONE) ===
-scenes.rooftops={
-draw(){drawSky(['#0a0a2e','#1a1a4e','#2a2a6e','#4a4a8e']);ctx.fillStyle='#37474F';ctx.fillRect(cW*.05,cH*.5,cW*.2,cH*.5);ctx.fillStyle='#455A64';ctx.fillRect(cW*.3,cH*.35,cW*.15,cH*.65);ctx.fillStyle='#546E7A';ctx.fillRect(cW*.55,cH*.45,cW*.18,cH*.55);ctx.fillStyle='#37474F';ctx.fillRect(cW*.8,cH*.3,cW*.18,cH*.7);for(let b=0;b<4;b++){const bx=cW*[.05,.3,.55,.8][b],bw=cW*[.2,.15,.18,.18][b],by=cH*[.5,.35,.45,.3][b];ctx.fillStyle='#FFEB3B';for(let wr=0;wr<3;wr++)for(let wc=0;wc<2;wc++)ctx.fillRect(bx+bw*.2+wc*bw*.45,by+20+wr*40,bw*.25,20)}ctx.globalAlpha=.4;for(let i=0;i<20;i++){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cW*Math.random(),cH*Math.random()*.3,1+Math.random()*2,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;drawChar(cW*.5,cH*.28,cW*.06);drawChicken(cW*.35,cH*.6,cW*.04,true);drawChicken(cW*.7,cH*.55,cW*.035,true);drawEmoji('🌙',cW*.85,cH*.1,30)},
-enter(){setLoc('🏙️ Sky Rooftops');this.draw();if(!hf('ri')){setSpeaker('');setDialog('You climb onto the city rooftops. The wind howls. Neon signs flicker below. Doom Chickens have scattered multiplication platforms across the skyline — you must JUMP to the correct answers to advance! One wrong landing and you try again.');clearButtons();addBtn('Survey the rooftops','teal',()=>{sf('ri');this.hub()})}else this.hub()},
-hub(){this.draw();const p1=hf('r1'),p2=hf('r2');setSpeaker('');if(!p1){setDialog('A wise (and very cold) pigeon sits on a satellite dish. "Before you jump the platforms, answer THIS," it coos, fluffing itself importantly.');clearButtons();addBtn('Answer the pigeon','purple',()=>this.p1());addBtn('Go back','blue',()=>go('village'))}else if(!p2){setDialog('"Excellent!" coos the pigeon. "Now prove your multiplication mastery on the JUMPING PLATFORMS!" The pigeon points a wing at a series of floating platforms glowing in the night sky.');clearButtons();addBtn('🧮 JUMP THE PLATFORMS!','gold',()=>this.platformer());addBtn('Go back','blue',()=>go('village'))}else{setDialog('The rooftops are peaceful. The pigeon has retired to contemplate the meaning of breadcrumbs.');clearButtons();addBtn('Return to village','blue',()=>go('village'))}},
-async p1(){
-const ok=await showPuzzle('🐦 Pigeon\'s Question','You have $20. You buy 3 notebooks at $2.50 each. Then you buy a pen for $4.75. How much change do you have?',['$5.25','$7.75','$8.25','$7.25'],1);
-// 3×2.50=7.50, 7.50+4.75=12.25, 20-12.25=7.75
-sf('r1');if(ok)addGems(8);else takeDmg(10);this.hub()},
-async platformer(){
-await startPlatformer(5);
-sf('r2');sf('rc');addGems(15);addKey();addItem('🏙️','Rooftop Crystal');
-setSpeaker('');setDialog('INCREDIBLE JUMPING! Your multiplication skills are legendary. The Doom Chickens are shaking in their tiny boots. Only the Fortress remains!');clearButtons();addBtn('To the Fortress! 🐔','red',()=>go('tower'));addBtn('Back to village','blue',()=>go('village'))}
-};
+// ===================== VICTORY =====================
+function showVictory(){
+const el=Math.floor((Date.now()-S.startTime)/1000);
+const m=Math.floor(el/60),s=el%60;
+const sc=S.score;
+let rank='🥉 Tadpole';
+if(sc>=2000)rank='🏆 Legendary Leaper';
+else if(sc>=1500)rank='🥇 Master Frog';
+else if(sc>=1000)rank='🥈 Jumping Genius';
+else if(sc>=600)rank='🐸 Skilled Hopper';
 
-// === CHICKEN FORTRESS ===
-scenes.tower={
-draw(){drawSky(['#4A148C','#6A1B9A','#AB47BC','#CE93D8']);ctx.fillStyle='#311B92';ctx.fillRect(cW*.25,cH*.1,cW*.5,cH*.6);for(let i=0;i<6;i++){ctx.fillStyle='#311B92';ctx.fillRect(cW*.22+i*cW*.1,cH*.05,cW*.06,cH*.08)}ctx.strokeStyle='rgba(0,0,0,.12)';ctx.lineWidth=1;for(let r=0;r<12;r++)for(let c=0;c<5;c++)ctx.strokeRect(cW*(.25+c*.1)+(r%2?cW*.05:0),cH*(.1+r*.05),cW*.1,cH*.05);ctx.fillStyle='#FF6F00';ctx.fillRect(cW*.38,cH*.18,cW*.06,cH*.08);ctx.fillRect(cW*.56,cH*.18,cW*.06,cH*.08);ctx.fillRect(cW*.47,cH*.35,cW*.06,cH*.08);ctx.fillStyle='#1a0a00';ctx.beginPath();ctx.arc(cW*.5,cH*.58,cW*.08,Math.PI,0);ctx.fill();ctx.fillRect(cW*.42,cH*.58,cW*.16,cH*.12);drawEmoji('🐔',cW*.5,cH*.15,28);const lg=ctx.createLinearGradient(0,cH*.7,0,cH);lg.addColorStop(0,'#4A148C');lg.addColorStop(.5,'#7B1FA2');lg.addColorStop(1,'#6A1B9A');ctx.fillStyle=lg;ctx.fillRect(0,cH*.7,cW,cH*.3);drawChicken(cW*.2,cH*.65,cW*.05,true);drawChicken(cW*.8,cH*.63,cW*.05,true);drawChicken(cW*.5,cH*.48,cW*.065,true);ctx.globalAlpha=.5;for(let i=0;i<10;i++){ctx.fillStyle='#CE93D8';ctx.beginPath();ctx.arc(cW*Math.random(),cH*Math.random()*.7,2+Math.random()*3,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;drawChar(cW*.5,cH*.85,cW*.06)},
-enter(){setLoc('🐔 Chicken Fortress of Doom');this.draw();if(!hf('ti')){setSpeaker('');setDialog('The fortress radiates dark poultry energy. Lightning crackles. An enormous chicken wearing a comically tiny crown sits on a throne constructed entirely from stolen maths textbooks. This is the most ridiculous thing you have ever witnessed.');clearButtons();addBtn('Enter the fortress','red',()=>{sf('ti');this.f1()})}else this.hub()},
-hub(){this.draw();if(!hf('t1')){this.f1();return}if(!hf('t2')){this.f2();return}if(!hf('t3')){this.f3();return}if(!hf('t4')){this.boss();return}setSpeaker('');setDialog('The fortress is gloriously chicken-free!');clearButtons();addBtn('Return to village','blue',()=>go('village'))},
-f1(){setSpeaker('🐔 Guard Chicken');setDialog('"BAWK! I am Gerald, Guardian of Floor One! Tremble before my magnificent plumage! None shall pass without answering my devastatingly clever question!"');clearButtons();
-addBtn('Bring it, drumstick 🍗','red',async()=>{
-const ok=await showPuzzle('🐔 Floor 1 — Gerald\'s Gauntlet','A rectangular garden is 12 metres long and 8 metres wide. You want to build a fence around the ENTIRE perimeter AND put a diagonal path corner to corner. The fence costs $3 per metre. How much does the fence cost?',['$100','$108','$120','$96'],2);
-// Perimeter = 2×(12+8) = 40m. Cost = 40×3 = $120
-sf('t1');if(ok)addGems(10);else takeDmg(15);this.hub()})},
-f2(){setSpeaker('');setDialog('Floor 2: A room of mirrors. You can see forty-seven versions of yourself, all looking equally confused. A riddle shimmers on the glass...');clearButtons();
-addBtn('Read the riddle','purple',async()=>{
-const ok=await showPuzzle('🪞 Floor 2 — Mirror Maze','You fill a 500mL bottle ⅖ full of orange juice, then top up ½ of the remaining space with water. How many mL of water did you add?',['100 mL','125 mL','150 mL','200 mL'],2);
-// ⅖ of 500 = 200mL OJ. Remaining = 300mL. Half = 150mL water.
-sf('t2');if(ok)addGems(10);else takeDmg(15);this.hub()})},
-f3(){setSpeaker('');setDialog('Floor 3: The final staircase has a combination lock. From somewhere above, a chicken cackles with the confidence of someone who has never been turned into a nugget. Yet.');clearButtons();
-addBtn('Crack the code','orange',async()=>{
-const ok=await showNumpad('🔢 Floor 3 — Staircase Code','A bag has 180 marbles. You give ⅓ to your friend, then ¼ of what\'s LEFT to your sister. How many marbles do YOU still have?',90);
-// ⅓ of 180 = 60 given. Left = 120. ¼ of 120 = 30 to sister. You keep 120 - 30 = 90.
-sf('t3');if(ok){addGems(10);addKey()}else takeDmg(12);this.hub()})},
-boss(){
-const self=this;
-setSpeaker('👑🐔 The Grand Cluck');setDialog('"BAWKAWWWWWK! I am the GRAND CLUCK! Supreme overlord of all poultry! Conqueror of coops! Emperor of eggs! My puzzles are LEGENDARY and my feathers are IMMACULATE! You must answer ALL THREE correctly to defeat me!"');clearButtons();
-addBtn('Let\'s dance, chicken 🕺','gold',async()=>{
-const ok1=await showPuzzle('👑🐔 BOSS — Phase 1','A shop has a "Buy 2, get 1 free" offer on $6 cakes. You want 7 cakes. How much do you pay?',['$30','$36','$42','$24'],0);
-// 7 cakes: buy 2 get 1 free = groups of 3 for $12. 2 full groups = 6 cakes for $24. 1 more cake = $6. Total = $30.
-if(ok1)addGems(15);else takeDmg(10);
+document.getElementById('v-text').textContent='You conquered all '+S.questions.length+' levels of traffic, rivers, and brain-busting maths! The roads are safe, the rivers are crossed, and your brain is approximately 300% bigger than when you started.';
+document.getElementById('v-stats').innerHTML=
+'<div class="srow"><span>⏱️ Time</span><span class="sval">'+m+'m '+s+'s</span></div>'+
+'<div class="srow"><span>🐸 Levels Cleared</span><span class="sval">'+S.level+'</span></div>'+
+'<div class="srow"><span>⭐ Questions (1st try)</span><span class="sval">'+S.firstTries+' / '+S.questions.length+'</span></div>'+
+'<div class="srow"><span>❌ Wrong Answers</span><span class="sval">'+S.totalWrong+'</span></div>'+
+'<div class="srow"><span>🏅 Score</span><span class="sval">'+sc+'</span></div>'+
+'<div class="srow" style="border-top:2px solid rgba(76,175,80,.3);padding-top:8px;margin-top:4px"><span>🎖️ Rank</span><span class="sval">'+rank+'</span></div>';
+document.getElementById('victory').classList.add('active');
+}
 
-const ok2=await showPuzzle('👑🐔 BOSS — Phase 2','Five friends each high-five every OTHER friend exactly once at a party. How many high-fives happen in total?',['10','15','20','25'],0);
-// 5C2 = 10
-if(ok2)addGems(15);else takeDmg(10);
+// ===================== CONTROLS =====================
+document.getElementById('b-up').onclick=()=>moveFrog(0,-1);
+document.getElementById('b-down').onclick=()=>moveFrog(0,1);
+document.getElementById('b-left').onclick=()=>moveFrog(-1,0);
+document.getElementById('b-right').onclick=()=>moveFrog(1,0);
 
-const ok3=await showPuzzle('👑🐔 BOSS — Final Phase!','The Grand Cluck\'s secret code uses shapes: ⭐ + ⭐ + 🔶 = 22, and ⭐ + 🔶 + 🔶 = 29. What is the value of ⭐?',['5','7','8','15'],0);
-// 2s + d = 22, s + 2d = 29. Subtract: s - d = -7, so d = s+7. 2s + s + 7 = 22 → 3s = 15 → s = 5.
-if(ok3)addGems(20);else takeDmg(10);
+// Keyboard support too
+document.addEventListener('keydown',e=>{
+if(['ArrowUp','w','W'].includes(e.key)){e.preventDefault();moveFrog(0,-1)}
+if(['ArrowDown','s','S'].includes(e.key)){e.preventDefault();moveFrog(0,1)}
+if(['ArrowLeft','a','A'].includes(e.key)){e.preventDefault();moveFrog(-1,0)}
+if(['ArrowRight','d','D'].includes(e.key)){e.preventDefault();moveFrog(1,0)}
+});
 
-sf('t4');sf('tc');addItem('👑','Crown of Cluckington');
-if(hasItem('Health Potion')&&G.hp<50)heal(30);
-setSpeaker('👑🐔 The Grand Cluck');setDialog('"INCONCEIVABLE! My beautiful, diabolical plans! My maths textbook throne that took WEEKS to assemble! My tiny crown! NOOOOOO!" — The Grand Cluck explodes into a spectacular blizzard of feathers, glitter, and wounded ego.');clearButtons();addBtn('🎉 Claim victory!','gold',()=>self.victory())})}
-};
+// ===================== INIT =====================
+function generateStars(){
+const c=document.getElementById('stars-box');
+for(let i=0;i<50;i++){
+const s=document.createElement('div');s.className='star';
+s.style.left=Math.random()*100+'%';s.style.top=Math.random()*70+'%';
+const sz=1+Math.random()*3;s.style.width=sz+'px';s.style.height=sz+'px';
+s.style.animationDelay=Math.random()*2+'s';
+s.style.animationDuration=(1.5+Math.random()*2)+'s';
+c.appendChild(s);
+}
+}
 
-scenes.tower.victory=function(){
-const el=Math.floor((Date.now()-G.startTime)/1000),m=Math.floor(el/60),s=el%60;
-const sc=G.gems+G.puzzlesSolved*25+G.hp-G.wrongAnswers*8;
-let rank='🥉 Chicken Nugget';if(sc>=250)rank='🏆 Supreme Cluck Slayer';else if(sc>=180)rank='🥇 Feather Destroyer';else if(sc>=120)rank='🥈 Egg Scrambler';
-document.getElementById('victory-content').innerHTML='<div class="victory-stats"><div class="stat-row"><span>⏱️ Time</span><span class="stat-val">'+m+'m '+s+'s</span></div><div class="stat-row"><span>🧩 Puzzles Correct (1st try)</span><span class="stat-val">'+G.puzzlesSolved+' / '+G.puzzlesTotal+'</span></div><div class="stat-row"><span>❌ Wrong Answers</span><span class="stat-val">'+G.wrongAnswers+'</span></div><div class="stat-row"><span>💎 Gems</span><span class="stat-val">'+G.gems+'</span></div><div class="stat-row"><span>❤️ HP</span><span class="stat-val">'+G.hp+' / '+G.maxHp+'</span></div><div class="stat-row"><span>🎒 Items</span><span class="stat-val">'+G.inventory.length+'</span></div><div class="stat-row" style="border-top:2px solid rgba(255,215,0,.3);padding-top:10px;margin-top:4px"><span>⭐ Score</span><span class="stat-val">'+sc+'</span></div><div class="stat-row"><span>🎖️ Rank</span><span class="stat-val">'+rank+'</span></div></div><p style="color:#c8b8ff;text-align:center;font-weight:700;margin-bottom:1rem;font-size:clamp(.85rem,2.2vw,1.05rem)">The Doom Chickens have been spectacularly vanquished! Cluckington is saved!<br>(The chickens have submitted a formal letter of apology. It is mostly illegible, misspelled, and includes a coupon for free eggs.)</p>';
-document.getElementById('victory-screen').classList.add('active')};
+function shuffleArray(arr){
+const a=[...arr];
+for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+return a;
+}
 
-// INIT
-function generateStars(){const c=document.getElementById('stars-container');for(let i=0;i<60;i++){const s=document.createElement('div');s.className='star';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*70+'%';const sz=1+Math.random()*3;s.style.width=sz+'px';s.style.height=sz+'px';s.style.animationDelay=Math.random()*2+'s';s.style.animationDuration=(1.5+Math.random()*2)+'s';c.appendChild(s)}}
-function startGame(){document.getElementById('title-screen').classList.add('hidden');document.getElementById('hud').style.display='flex';document.getElementById('panel').style.display='flex';G.startTime=Date.now();updateHUD();resizeCanvas();go('village')}
-generateStars();document.getElementById('btn-start').onclick=startGame;window.addEventListener('load',resizeCanvas);
-if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath()}}
+function genMultiplyQ(){
+const a=3+Math.floor(Math.random()*9); // 3-11
+const b=3+Math.floor(Math.random()*9); // 3-11
+return {q:"What is "+a+" × "+b+"?",a:a*b};
+}
+function genSquaredQ(){
+const n=4+Math.floor(Math.random()*13); // 4-16
+return {q:"What is "+n+" squared?",a:n*n};
+}
+
+function startGame(){
+document.getElementById('title').classList.add('hidden');
+document.getElementById('game').classList.add('active');
+const q1=genMultiplyQ();
+const q2=genSquaredQ();
+S.questions=[q1,q2,...shuffleArray(ALL_QUESTIONS)];
+S.qIndex=0;S.score=0;S.totalWrong=0;S.firstTries=0;S.lives=3;
+S.startTime=Date.now();
+resizeGame();
+startLevel(1);
+}
+
+generateStars();
+document.getElementById('btn-go').onclick=startGame;
+window.addEventListener('resize',()=>{if(S.running)resizeGame()});
+
+// RoundRect polyfill
+if(!CanvasRenderingContext2D.prototype.roundRect){
+CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};
+this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);
+this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);
+this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);
+this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);
+this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();
+}
+}
 </script>
 </body>
 </html>
