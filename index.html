@@ -459,7 +459,7 @@ const choices=[...wrongs,ans].sort(()=>Math.random()-.5);
 const platW=80;
 const spacing=(W-40)/3;
 const plats=choices.map((v,i)=>({
-x:20+i*spacing+spacing/2-platW/2,y:H-150,w:platW,h:16,value:v,color:'#6c5ce7'
+x:20+i*spacing+spacing/2-platW/2,y:H-130,w:platW,h:16,value:v,color:'#6c5ce7'
 }));
 return{a,b,ans,choices,plats};
 }
@@ -493,7 +493,7 @@ btns[2].addEventListener('mousedown',()=>setMove(1));
 btns[2].addEventListener('mouseup',()=>setMove(0));
 btns[2].addEventListener('mouseleave',()=>setMove(0));
 
-function doJump(){if(player.grounded&&!result&&!won){player.vy=-9.5;player.grounded=false;}}
+function doJump(){if(player.grounded&&!result&&!won){player.vy=-11.5;player.grounded=false;}}
 btns[1].addEventListener('touchstart',e=>{e.preventDefault();doJump()},{passive:false});
 btns[1].addEventListener('mousedown',doJump);
 
@@ -504,7 +504,7 @@ let animId;
 
 function loop(){
 if(!won&&!result){
-player.vx=moveDir*3.5;
+player.vx=moveDir*4.5;
 player.vy+=.4;
 player.x+=player.vx;
 player.y+=player.vy;
@@ -513,7 +513,7 @@ if(player.x+player.w>W)player.x=W-player.w;
 if(player.y+player.h>=H-18){player.y=H-18-player.h;player.vy=0;player.grounded=true;}
 
 platforms.forEach(pl=>{
-if(player.vy>0&&player.x+player.w>pl.x&&player.x<pl.x+pl.w&&player.y+player.h>=pl.y&&player.y+player.h<=pl.y+pl.h+8){
+if(player.vy>0&&player.x+player.w>pl.x&&player.x<pl.x+pl.w&&player.y+player.h>=pl.y&&player.y+player.h<=pl.y+pl.h+14){
 player.y=pl.y-player.h;player.vy=0;player.grounded=true;
 if(pl.value===problem.ans){
 result='correct';resultT=0;solved++;
