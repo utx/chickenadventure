@@ -2,16 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>🐸 Leap of Logic — A Frogger Math Adventure</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800;900&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
-html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:'Nunito',sans-serif}
-#wrap{width:100%;height:100%;position:relative;overflow:hidden}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+html{touch-action:manipulation;-ms-touch-action:manipulation;overflow:hidden;position:fixed;width:100%;height:100%}
+body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:'Nunito',sans-serif;position:fixed;touch-action:manipulation}
+#wrap{width:100%;height:100%;position:fixed;top:0;left:0;overflow:hidden;touch-action:manipulation}
+
+/* Prevent iOS zoom */
+input,textarea,select{font-size:16px!important}
 
 /* ===== TITLE ===== */
-#title{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#0d3b0d,#0a2a1a 50%,#051a10);z-index:100;transition:opacity .6s;padding:1.2rem;overflow-y:auto}
+#title{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#0d3b0d,#0a2a1a 50%,#051a10);z-index:100;transition:opacity .6s;padding:1.2rem;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #title.hidden{opacity:0;pointer-events:none}
 .stars{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .star{position:absolute;background:#fff;border-radius:50%;animation:twinkle 2s infinite alternate}
@@ -25,33 +31,33 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:
 .info-box h3{font-family:'Lilita One',cursive;color:#66BB6A;font-size:clamp(1rem,2.5vw,1.3rem);margin-bottom:.5rem;text-align:center}
 .irow{display:flex;align-items:center;gap:.7rem;margin:.4rem 0;color:#C8E6C9;font-size:clamp(.78rem,1.9vw,.93rem);font-weight:700}
 .iico{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0}
-.iico.a{background:linear-gradient(135deg,#4CAF50,#2E7D32)}.iico.b{background:linear-gradient(135deg,#FF9800,#E65100)}.iico.c{background:linear-gradient(135deg,#2196F3,#0D47A1)}.iico.d{background:linear-gradient(135deg,#9C27B0,#4A148C)}
+.iico.a{background:linear-gradient(135deg,#4CAF50,#2E7D32)}.iico.b{background:linear-gradient(135deg,#FF9800,#E65100)}.iico.c{background:linear-gradient(135deg,#2196F3,#0D47A1)}.iico.d{background:linear-gradient(135deg,#9C27B0,#4A148C)}.iico.e{background:linear-gradient(135deg,#E53935,#B71C1C)}
 .play-btn{font-family:'Lilita One',cursive;font-size:clamp(1.4rem,4vw,2rem);padding:.8rem 3rem;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(180deg,#66BB6A,#2E7D32);color:#fff;box-shadow:0 6px 0 #1B5E20,0 10px 30px rgba(0,0,0,.4);z-index:2;transition:transform .1s,box-shadow .1s;text-shadow:0 2px 4px rgba(0,0,0,.3)}
 .play-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #1B5E20,0 4px 10px rgba(0,0,0,.4)}
 
 /* ===== GAME HUD ===== */
 #game{position:absolute;inset:0;display:none;flex-direction:column;background:#111}
 #game.active{display:flex}
-#hud{height:48px;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:space-between;padding:0 12px;flex-shrink:0;border-bottom:2px solid rgba(76,175,80,.3)}
-.hi{display:flex;align-items:center;gap:5px;color:#fff;font-weight:800;font-size:clamp(.7rem,1.8vw,.9rem)}
-.hi .ic{font-size:1.1rem}
-#hud-level{font-family:'Lilita One',cursive;color:#66BB6A;font-size:clamp(.7rem,2vw,.95rem);text-shadow:0 1px 4px rgba(0,0,0,.6)}
-#hud-theme{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Lilita One',cursive;color:#FFD700;font-size:clamp(.6rem,1.6vw,.8rem);white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+#hud{height:44px;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:space-between;padding:0 10px;flex-shrink:0;border-bottom:2px solid rgba(76,175,80,.3)}
+.hi{display:flex;align-items:center;gap:4px;color:#fff;font-weight:800;font-size:clamp(.65rem,1.7vw,.85rem)}
+.hi .ic{font-size:1rem}
+#hud-level{font-family:'Lilita One',cursive;color:#66BB6A;font-size:clamp(.65rem,1.8vw,.9rem);text-shadow:0 1px 4px rgba(0,0,0,.6)}
+#hud-theme{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Lilita One',cursive;color:#FFD700;font-size:clamp(.55rem,1.4vw,.75rem);white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.8)}
 
 /* ===== CANVAS ===== */
 #canvas-wrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background:#0a1a0a}
 #game-canvas{display:block;touch-action:none}
 
 /* ===== CONTROLS ===== */
-#controls{height:170px;background:linear-gradient(180deg,rgba(10,20,10,.95),rgba(5,15,5,1));border-top:2px solid rgba(76,175,80,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:8px;gap:20px}
-.dpad{display:grid;grid-template-columns:62px 62px 62px;grid-template-rows:62px 62px 62px;gap:4px}
-.dbtn{border:none;border-radius:14px;font-size:1.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(76,175,80,.15);color:#66BB6A;border:2px solid rgba(76,175,80,.3);box-shadow:0 3px 0 rgba(0,0,0,.3);transition:background .08s}
+#controls{height:150px;background:linear-gradient(180deg,rgba(10,20,10,.95),rgba(5,15,5,1));border-top:2px solid rgba(76,175,80,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:6px;gap:16px}
+.dpad{display:grid;grid-template-columns:56px 56px 56px;grid-template-rows:56px 56px 56px;gap:3px}
+.dbtn{border:none;border-radius:12px;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(76,175,80,.15);color:#66BB6A;border:2px solid rgba(76,175,80,.3);box-shadow:0 3px 0 rgba(0,0,0,.3);transition:background .08s;-webkit-tap-highlight-color:transparent}
 .dbtn:active{transform:translateY(2px);background:rgba(76,175,80,.35);box-shadow:0 1px 0 rgba(0,0,0,.3)}
 .dbtn.blank{background:transparent;border-color:transparent;box-shadow:none;cursor:default}
 .dbtn.blank:active{transform:none}
-.ctrl-info{display:flex;flex-direction:column;align-items:center;gap:6px}
-.ctrl-info span{color:#4CAF50;font-family:'Lilita One',cursive;font-size:clamp(.65rem,1.5vw,.8rem);text-align:center}
-.lives-display{display:flex;gap:2px;font-size:1.3rem}
+.ctrl-info{display:flex;flex-direction:column;align-items:center;gap:4px}
+.ctrl-info span{color:#4CAF50;font-family:'Lilita One',cursive;font-size:clamp(.6rem,1.4vw,.75rem);text-align:center}
+.lives-display{display:flex;gap:2px;font-size:1.2rem}
 
 /* ===== LEVEL BANNER ===== */
 #level-banner{position:absolute;inset:0;z-index:20;display:none;background:rgba(0,0,0,.85);flex-direction:column;align-items:center;justify-content:center;padding:1rem}
@@ -59,32 +65,34 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:
 .banner-text{font-family:'Lilita One',cursive;color:#66BB6A;font-size:clamp(1.5rem,5vw,2.5rem);text-shadow:0 3px 0 #1B5E20,0 0 30px rgba(76,175,80,.3);animation:bob 2s ease-in-out infinite}
 .banner-sub{color:#A5D6A7;font-weight:700;font-size:clamp(.85rem,2.2vw,1.1rem);margin-top:.5rem;text-align:center}
 .banner-emoji{font-size:3rem;margin-bottom:.5rem}
+.banner-warn{color:#FF5252;font-weight:800;font-size:clamp(.75rem,1.8vw,.9rem);margin-top:.4rem;text-align:center;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
 /* ===== MATH OVERLAY ===== */
 #math-overlay{position:absolute;inset:0;z-index:30;display:none;background:rgba(5,15,5,.94);backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center;padding:1rem}
 #math-overlay.active{display:flex}
-#math-box{background:linear-gradient(135deg,#0d2b0d,#061a06);border:3px solid rgba(76,175,80,.4);border-radius:24px;padding:1.2rem;width:95%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 0 50px rgba(76,175,80,.15)}
-#math-title{font-family:'Lilita One',cursive;color:#66BB6A;font-size:clamp(.9rem,2.5vw,1.3rem);text-align:center;margin-bottom:.3rem}
-#math-q{color:#C8E6C9;font-weight:700;font-size:clamp(.85rem,2.2vw,1.05rem);text-align:center;margin-bottom:.8rem;line-height:1.45}
-#math-display{font-family:'Lilita One',cursive;font-size:clamp(1.6rem,4.5vw,2.2rem);color:#FFD700;text-align:center;min-height:2.4rem;padding:8px;border-bottom:3px solid rgba(255,215,0,.4);margin:0 auto .6rem;min-width:120px;max-width:220px;letter-spacing:2px}
-.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:280px;margin:0 auto}
-.nbtn{font-family:'Lilita One',cursive;font-size:clamp(1.2rem,3.5vw,1.6rem);padding:13px;border:none;border-radius:14px;cursor:pointer;background:linear-gradient(180deg,#1B5E20,#0d3b0d);color:#C8E6C9;border:2px solid rgba(76,175,80,.25);box-shadow:0 3px 0 rgba(0,0,0,.4)}
+#math-box{background:linear-gradient(135deg,#0d2b0d,#061a06);border:3px solid rgba(76,175,80,.4);border-radius:24px;padding:1rem 1.1rem;width:95%;max-width:440px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;box-shadow:0 0 50px rgba(76,175,80,.15)}
+#math-title{font-family:'Lilita One',cursive;color:#66BB6A;font-size:clamp(.85rem,2.3vw,1.2rem);text-align:center;margin-bottom:.3rem}
+#math-q{color:#C8E6C9;font-weight:700;font-size:clamp(.8rem,2vw,1rem);text-align:center;margin-bottom:.7rem;line-height:1.4}
+#math-display{font-family:'Lilita One',cursive;font-size:clamp(1.5rem,4vw,2rem);color:#FFD700;text-align:center;min-height:2.2rem;padding:6px;border-bottom:3px solid rgba(255,215,0,.4);margin:0 auto .5rem;min-width:100px;max-width:200px;letter-spacing:2px}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;max-width:260px;margin:0 auto}
+.nbtn{font-family:'Lilita One',cursive;font-size:clamp(1.1rem,3.2vw,1.5rem);padding:11px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(180deg,#1B5E20,#0d3b0d);color:#C8E6C9;border:2px solid rgba(76,175,80,.25);box-shadow:0 3px 0 rgba(0,0,0,.4);-webkit-tap-highlight-color:transparent}
 .nbtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
 .nbtn.enter{background:linear-gradient(180deg,#4CAF50,#2E7D32);color:#fff}.nbtn.clear{background:linear-gradient(180deg,#E53935,#B71C1C);color:#fff}
-#math-fb{font-family:'Lilita One',cursive;font-size:clamp(1rem,2.8vw,1.4rem);text-align:center;margin-top:.6rem;min-height:1.6rem}
+#math-fb{font-family:'Lilita One',cursive;font-size:clamp(.9rem,2.5vw,1.3rem);text-align:center;margin-top:.5rem;min-height:1.5rem}
 #math-fb.ok{color:#4CAF50}#math-fb.no{color:#E53935}
-#math-next{display:none;margin:.7rem auto 0;font-family:'Lilita One',cursive;font-size:clamp(.95rem,2.5vw,1.15rem);padding:10px 30px;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(180deg,#66BB6A,#2E7D32);color:#fff;box-shadow:0 4px 0 #1B5E20}
+#math-next{display:none;margin:.6rem auto 0;font-family:'Lilita One',cursive;font-size:clamp(.9rem,2.3vw,1.1rem);padding:9px 26px;border:none;border-radius:50px;cursor:pointer;background:linear-gradient(180deg,#66BB6A,#2E7D32);color:#fff;box-shadow:0 4px 0 #1B5E20;-webkit-tap-highlight-color:transparent}
 #math-next:active{transform:translateY(3px);box-shadow:0 1px 0 #1B5E20}
-#math-attempts{color:#A5D6A7;font-size:clamp(.7rem,1.6vw,.8rem);text-align:center;margin-top:.3rem;font-weight:700;min-height:1.2rem}
+#math-attempts{color:#A5D6A7;font-size:clamp(.65rem,1.5vw,.75rem);text-align:center;margin-top:.3rem;font-weight:700;min-height:1.1rem}
 
 /* ===== VICTORY ===== */
-#victory{position:absolute;inset:0;z-index:90;display:none;background:linear-gradient(180deg,#0d3b0d,#051a10);flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto}
+#victory{position:absolute;inset:0;z-index:90;display:none;background:linear-gradient(180deg,#0d3b0d,#051a10);flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #victory.active{display:flex}
-.vtitle{font-family:'Lilita One',cursive;font-size:clamp(1.6rem,5.5vw,2.8rem);color:#4CAF50;text-shadow:0 4px 0 #1B5E20,0 0 40px rgba(76,175,80,.4);animation:bob 2s ease-in-out infinite;margin-bottom:.8rem;text-align:center}
+.vtitle{font-family:'Lilita One',cursive;font-size:clamp(1.4rem,5vw,2.5rem);color:#4CAF50;text-shadow:0 4px 0 #1B5E20,0 0 40px rgba(76,175,80,.4);animation:bob 2s ease-in-out infinite;margin-bottom:.8rem;text-align:center}
 .vstats{background:rgba(255,255,255,.06);border:2px solid rgba(76,175,80,.25);border-radius:20px;padding:1rem;width:90%;max-width:400px;margin-bottom:1.2rem}
-.srow{display:flex;justify-content:space-between;padding:5px 0;color:#A5D6A7;font-weight:800;font-size:clamp(.8rem,2.2vw,1rem);border-bottom:1px solid rgba(255,255,255,.06)}
+.srow{display:flex;justify-content:space-between;padding:5px 0;color:#A5D6A7;font-weight:800;font-size:clamp(.75rem,2vw,.95rem);border-bottom:1px solid rgba(255,255,255,.06)}
 .srow:last-child{border:none}.sval{color:#FFD700}
-.vtext{color:#C8E6C9;text-align:center;font-weight:700;margin-bottom:1.2rem;font-size:clamp(.85rem,2.2vw,1rem);line-height:1.5;max-width:420px}
+.vtext{color:#C8E6C9;text-align:center;font-weight:700;margin-bottom:1.2rem;font-size:clamp(.8rem,2vw,.95rem);line-height:1.5;max-width:420px}
 
 /* ===== TRANSITION ===== */
 #fade{position:absolute;inset:0;z-index:50;background:#000;opacity:0;pointer-events:none;transition:opacity .35s}
@@ -106,6 +114,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:
 <div class="irow"><div class="iico a">🐸</div><b>CROSS</b>&nbsp;roads & rivers to reach the safe zone</div>
 <div class="irow"><div class="iico b">🧮</div><b>SOLVE</b>&nbsp;a maths question to unlock the next level</div>
 <div class="irow"><div class="iico c">📈</div><b>SURVIVE</b>&nbsp;19 levels of increasing chaos</div>
+<div class="irow"><div class="iico e">🐦‍⬛</div><b>BEWARE</b>&nbsp;Crow appears from Level 7 — dodge or die!</div>
 <div class="irow"><div class="iico d">🏆</div><b>CONQUER</b>&nbsp;all levels to become the Leap of Logic champion!</div>
 </div>
 <button class="play-btn" id="btn-go" ontouchstart="">🎮 START</button>
@@ -116,7 +125,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:
 <div id="hud">
 <div class="hi" id="hud-level"><span class="ic">🐸</span> Level 1</div>
 <div id="hud-theme"></div>
-<div style="display:flex;gap:12px;align-items:center">
+<div style="display:flex;gap:10px;align-items:center">
 <div class="hi"><span class="ic">⭐</span><span id="hud-score">0</span></div>
 <div class="hi lives-display" id="hud-lives">❤️❤️❤️</div>
 </div>
@@ -128,7 +137,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:
 <button class="dbtn" id="b-up" ontouchstart="">▲</button>
 <div class="dbtn blank"></div>
 <button class="dbtn" id="b-left" ontouchstart="">◀</button>
-<div class="dbtn blank" style="background:rgba(76,175,80,.05);border-color:rgba(76,175,80,.1);border-radius:14px"></div>
+<div class="dbtn blank" style="background:rgba(76,175,80,.05);border-color:rgba(76,175,80,.1);border-radius:12px"></div>
 <button class="dbtn" id="b-right" ontouchstart="">▶</button>
 <div class="dbtn blank"></div>
 <button class="dbtn" id="b-down" ontouchstart="">▼</button>
@@ -138,7 +147,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:
 <span>Tap arrows<br>to hop!</span>
 </div>
 </div>
-<div id="level-banner"><div class="banner-emoji" id="ban-emoji"></div><div class="banner-text" id="ban-text"></div><div class="banner-sub" id="ban-sub"></div></div>
+<div id="level-banner"><div class="banner-emoji" id="ban-emoji"></div><div class="banner-text" id="ban-text"></div><div class="banner-sub" id="ban-sub"></div><div class="banner-warn" id="ban-warn"></div></div>
 </div>
 
 <!-- MATH OVERLAY -->
@@ -166,39 +175,81 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:
 </div>
 
 <script>
+// Prevent pinch zoom & double-tap zoom on iOS
+document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gesturechange',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gestureend',e=>e.preventDefault(),{passive:false});
+let lastTouchEnd=0;
+document.addEventListener('touchend',e=>{
+const now=Date.now();
+if(now-lastTouchEnd<=300){e.preventDefault();}
+lastTouchEnd=now;
+},{passive:false});
+document.addEventListener('touchmove',e=>{
+if(e.touches.length>1)e.preventDefault();
+},{passive:false});
+
 // ===================== QUESTIONS =====================
 const ALL_QUESTIONS=[
-{q:"A pizza has 12 slices. You eat ¼ of them, your friend eats ⅓ of the original 12. How many slices are LEFT?",a:5},
-{q:"A bag has 180 lollies. You give ⅓ to Sam, then ¼ of what's LEFT to Mia. How many lollies do YOU still have?",a:90},
-{q:"A tank holds 600 litres and is currently ⅗ full. You use half of the water that's in it. How many litres remain in the tank?",a:180},
-{q:"A movie starts at 10:45 AM and runs for 1 hour 50 minutes. What time does it end? (Write the time as four digits — for example, 10:45 AM = 1045)",a:1235},
-{q:"Buses leave every 12 minutes starting at 8:00 AM. You arrive at the stop at 8:50 AM. How many minutes do you wait for the next bus?",a:10},
-{q:"A train departs at 6:15 AM and arrives at 5:45 PM the same day. How many minutes long is the entire journey?",a:690},
-{q:"You have $50. You buy 4 books at $7 each and 2 pens at $3 each. How many dollars change do you get?",a:16},
-{q:"A shop runs a 'buy 2 get 1 free' deal on $6 cupcakes. You want to take home 10 cupcakes. How many dollars do you pay?",a:42},
-{q:"A rectangle is 15 metres long and 8 metres wide. What is its perimeter in metres?",a:46},
-{q:"A square room has a perimeter of 48 metres. What is its area in square metres?",a:144},
-{q:"A triangle has a base of 12 cm and a height of 9 cm. What is its area in square centimetres?",a:54},
-{q:"A car drives at 80 km/h for exactly 45 minutes. How many kilometres does it travel?",a:60},
-{q:"You cycle 24 km in 2 hours. Your friend cycles at 15 km/h for the same 2 hours. How many MORE kilometres does your friend cover than you?",a:6},
-{q:"A recipe for 4 people requires 300 g of flour. How many grams of flour do you need to make the same recipe for 6 people?",a:450},
-{q:"Red and blue marbles are in a bag in the ratio 3 : 5. There are 40 marbles in total. How many RED marbles are there?",a:15},
-{q:"You own 5 different shirts and 4 different pairs of shorts. How many unique outfit combinations can you make?",a:20},
-{q:"⭐ + ⭐ + 🔶 = 25 and ⭐ + 🔶 + 🔶 = 35. What is the value of ⭐?",a:5},
+{q:"A box has 36 chocolates. You eat ⅙ of them and your sister eats ¼ of the original 36. How many chocolates are LEFT?",a:21},
+{q:"A farmer collects 240 eggs. He sells ⅜ at the market, then gives ½ of what's LEFT to his neighbour. How many eggs does the farmer still have?",a:75},
+{q:"A swimming pool holds 800 litres. It is ¾ full. You drain ⅕ of the water that's in it. How many litres are now in the pool?",a:480},
+{q:"School assembly starts at 10:15 AM and lasts 2 hours 30 minutes. What time does it end? (Write the time as four digits — for example, 10:45 AM = 1045)",a:1245},
+{q:"A flight departs at 11:40 AM and lands at 3:25 PM the same day. How many minutes is the flight?",a:225},
+{q:"Trains depart every 15 minutes starting at 7:00 AM. You arrive at the station at 7:38 AM. How many minutes do you wait for the next train?",a:7},
+{q:"You have $100. You buy 3 books at $12 each and 5 pens at $4 each. How many dollars change do you get?",a:44},
+{q:"Pencils cost $3 each. A shop has a deal: buy 3 get 1 free. You need 12 pencils. How many dollars do you spend?",a:27},
+{q:"A rectangle is 18 metres long and 7 metres wide. What is its perimeter in metres?",a:50},
+{q:"A square playground has a perimeter of 60 metres. What is its area in square metres?",a:225},
+{q:"A triangle has a base of 16 cm and a height of 7 cm. What is its area in square centimetres?",a:56},
+{q:"A cyclist rides at 16 km/h for exactly 45 minutes. How many kilometres does the cyclist travel?",a:12},
+{q:"Bus A travels at 50 km/h for 3 hours. Bus B travels 180 km in the same time. How many MORE kilometres does Bus B travel?",a:30},
+{q:"A recipe for 8 cupcakes needs 200 g of sugar. How many grams of sugar do you need for 12 cupcakes?",a:300},
+{q:"Red and yellow beads are in a bag in the ratio 2 : 7. There are 63 beads in total. How many YELLOW beads are there?",a:49},
+{q:"🌟 + 🌟 + 🔷 = 32 and 🌟 + 🔷 + 🔷 = 40. What is the value of 🔷?",a:16},
+{q:"What is the next number in this pattern? 3, 9, 27, 81, …",a:243},
 ];
 
 // ===================== THEMES =====================
 const THEMES=[
+// 1: Green Turtle Pond
+{name:'Green Turtle Pond',sky:['#2E7D32','#388E3C','#4CAF50','#66BB6A'],ground:'#388E3C',safe:'#43A047',road:'#555',roadLine:'#FFD700',water:'#00695C',logCol:'#5D4037',carCols:['#E53935','#FF9800','#8E24AA','#00ACC1'],goalCol:'#A5D6A7',deco:['🐢','🌿','🍃'],isTurtle:true},
+// 2: Sunny Meadow
 {name:'Sunny Meadow',sky:['#87CEEB','#B3E5FC','#E8F5E9'],ground:'#4CAF50',safe:'#66BB6A',road:'#555',roadLine:'#FFD700',water:'#1565C0',logCol:'#795548',carCols:['#E53935','#FF9800','#8E24AA','#00ACC1'],goalCol:'#FFD700',deco:['🌻','🌼','🌳']},
+// 3: Brawl Ball Arena
+{name:'Brawl Ball',sky:['#1A237E','#283593','#3949AB'],ground:'#388E3C',safe:'#2E7D32',road:'#37474F',roadLine:'#64B5F6',water:'#0D47A1',logCol:'#5D4037',carCols:['#F44336','#2196F3','#FFEB3B','#4CAF50'],goalCol:'#FFC107',deco:['⚽','🥅','🏟️'],isBrawl:true},
+// 4: Gem Grab Cavern
+{name:'Gem Grab',sky:['#1a0033','#2d1050','#4A148C'],ground:'#4A148C',safe:'#6A1B9A',road:'#1a1a2e',roadLine:'#CE93D8',water:'#0D47A1',logCol:'#4E342E',carCols:['#E040FB','#00E5FF','#76FF03','#FF5252'],goalCol:'#E040FB',deco:['💎','💜','🔮'],isBrawl:true},
+// 5: Desert Highway
 {name:'Desert Highway',sky:['#FF8F00','#FFCC80','#FFF8E1'],ground:'#D2B48C',safe:'#C8A97E',road:'#444',roadLine:'#FFA000',water:'#0277BD',logCol:'#6D4C41',carCols:['#F44336','#FF6F00','#AD1457','#1565C0'],goalCol:'#FFD700',deco:['🌵','☀️','🏜️']},
+// 6: Misty River
 {name:'Misty River',sky:['#546E7A','#78909C','#B0BEC5','#CFD8DC'],ground:'#607D8B',safe:'#78909C',road:'#37474F',roadLine:'#90A4AE',water:'#0D47A1',logCol:'#5D4037',carCols:['#B0BEC5','#78909C','#546E7A','#90A4AE'],goalCol:'#FFD700',deco:['🌫️','🌧️','🦆']},
+// 7: Showdown Wasteland (CROW STARTS)
+{name:'Showdown',sky:['#1a0a00','#3E2723','#4E342E','#BF360C'],ground:'#5D4037',safe:'#4E342E',road:'#212121',roadLine:'#FF6D00',water:'#1B5E20',logCol:'#3E2723',carCols:['#FF6D00','#FFAB00','#F44336','#76FF03'],goalCol:'#FFC107',deco:['💀','🌵','📦'],isBrawl:true},
+// 8: Grand Arena
+{name:'Grand Arena',sky:['#0d0d2e','#1A237E','#E65100'],ground:'#1a1a3e',safe:'#283593',road:'#0d0d1a',roadLine:'#FF6D00',water:'#01579B',logCol:'#4A148C',carCols:['#FF6D00','#E040FB','#00E5FF','#FFEA00'],goalCol:'#FFD740',deco:['🏆','⚡','🔥'],isBrawl:true},
+// 9: Neon City
 {name:'Neon City',sky:['#0a0a2e','#1a1a3e','#2a0a3e'],ground:'#1a1a2e',safe:'#1a1a3e',road:'#111',roadLine:'#E040FB',water:'#1A237E',logCol:'#4A148C',carCols:['#E040FB','#00E5FF','#76FF03','#FFEA00'],goalCol:'#76FF03',deco:['🏙️','💡','🌃']},
+// 10: Spooky Swamp
 {name:'Spooky Swamp',sky:['#1a0a2e','#2d1b40','#1a2e1a'],ground:'#2E7D32',safe:'#33691E',road:'#263238',roadLine:'#9C27B0',water:'#1B5E20',logCol:'#3E2723',carCols:['#9C27B0','#7B1FA2','#4A148C','#E040FB'],goalCol:'#FFD700',deco:['🦇','🕯️','💀']},
+// 11: Brawl Ball Night
+{name:'Brawl Ball Night',sky:['#0d0d2e','#1a1a3e','#0D47A1'],ground:'#1B5E20',safe:'#1a3a1a',road:'#1a1a2e',roadLine:'#4FC3F7',water:'#01579B',logCol:'#3E2723',carCols:['#F44336','#2196F3','#FFD600','#69F0AE'],goalCol:'#FFC107',deco:['⚽','🌙','🏟️'],isBrawl:true},
+// 12: Snowy Pass
 {name:'Snowy Pass',sky:['#B3E5FC','#E1F5FE','#FFFFFF'],ground:'#E0E0E0',safe:'#F5F5F5',road:'#616161',roadLine:'#BDBDBD',water:'#0277BD',logCol:'#795548',carCols:['#2196F3','#1565C0','#EF5350','#FF9800'],goalCol:'#FFD700',deco:['❄️','⛄','🌨️']},
+// 13: Gem Grab Deep
+{name:'Gem Grab Deep',sky:['#0a001a','#1a0033','#4A148C'],ground:'#311B92',safe:'#4527A0',road:'#0d0d1a',roadLine:'#B388FF',water:'#0D47A1',logCol:'#4E342E',carCols:['#EA80FC','#00E5FF','#69F0AE','#FF5252'],goalCol:'#EA80FC',deco:['💎','⭐','💜'],isBrawl:true},
+// 14: Jungle Trail
 {name:'Jungle Trail',sky:['#1B5E20','#2E7D32','#388E3C','#4CAF50'],ground:'#2E7D32',safe:'#388E3C',road:'#4E342E',roadLine:'#8D6E63',water:'#00695C',logCol:'#3E2723',carCols:['#FF8F00','#F44336','#7B1FA2','#00BFA5'],goalCol:'#FFD700',deco:['🌴','🐒','🦜']},
+// 15: Volcanic Road
 {name:'Volcanic Road',sky:['#BF360C','#E65100','#FF6D00','#FFAB00'],ground:'#3E2723',safe:'#4E342E',road:'#212121',roadLine:'#FF6D00',water:'#D84315',logCol:'#BF360C',carCols:['#FF6D00','#FFAB00','#F44336','#FFD600'],goalCol:'#FFD600',deco:['🌋','🔥','💎']},
+// 16: Moonlit Highway
 {name:'Moonlit Highway',sky:['#0a0a2e','#1a1a4e','#283593'],ground:'#1a237e',safe:'#283593',road:'#0d0d1a',roadLine:'#5C6BC0',water:'#0D47A1',logCol:'#3E2723',carCols:['#FDD835','#FFEE58','#FFF176','#FFCA28'],goalCol:'#FDD835',deco:['🌙','⭐','🦉']},
+// 17: Showdown Final
+{name:'Showdown Final',sky:['#1a0000','#3E0000','#B71C1C'],ground:'#4E342E',safe:'#3E2723',road:'#1a0000',roadLine:'#FF1744',water:'#880E4F',logCol:'#3E2723',carCols:['#FF1744','#FF6D00','#FFD600','#76FF03'],goalCol:'#FF5252',deco:['☠️','💣','🔥'],isBrawl:true},
+// 18: Candy Land
 {name:'Candy Land',sky:['#F8BBD0','#F48FB1','#CE93D8','#B39DDB'],ground:'#CE93D8',safe:'#E1BEE7',road:'#7B1FA2',roadLine:'#F48FB1',water:'#4FC3F7',logCol:'#F06292',carCols:['#FF4081','#E040FB','#7C4DFF','#18FFFF'],goalCol:'#FFD740',deco:['🍭','🧁','🍬']},
+// 19: Ultimate Arena
+{name:'Ultimate Arena',sky:['#000000','#1a0a2e','#FF6D00','#FFD600'],ground:'#1a1a1a',safe:'#2a2a2a',road:'#0a0a0a',roadLine:'#FFD600',water:'#01579B',logCol:'#4E342E',carCols:['#FF1744','#D500F9','#00E676','#FFD600'],goalCol:'#FFD600',deco:['🏆','👑','⚡'],isBrawl:true},
 ];
 
 // ===================== LEVEL CONFIG =====================
@@ -218,11 +269,20 @@ function getLogCount(lv){return lv<=6?2:Math.min(2+Math.floor((lv-6)/3),4)}
 function getLogWidth(lv){return lv<=5?2.5:lv<=10?2.2:lv<=14?1.9:1.6}
 function getCarWidth(lv){return lv<=4?1.6:lv<=9?1.4:1.2}
 
+// ===================== CROW CONFIG =====================
+function hasCrow(lv){return lv>=7}
+function getCrowSpeed(lv){
+if(lv<=9) return 1.8;
+if(lv<=13) return 2.3;
+return 2.8;
+}
+
 // ===================== GAME STATE =====================
 const S={
 level:1,lives:3,score:0,totalWrong:0,firstTries:0,startTime:0,
 questions:[],qIndex:0,
 frog:{x:4,y:8},lanes:[],dead:false,deadTimer:0,won:false,invincible:0,
+crow:null,
 animId:null,running:false
 };
 
@@ -234,6 +294,179 @@ let CW,CH,CELL;
 // ===================== HELPERS =====================
 function slp(ms){return new Promise(r=>setTimeout(r,ms))}
 async function fade(cb){document.getElementById('fade').classList.add('on');await slp(350);if(cb)cb();await slp(100);document.getElementById('fade').classList.remove('on')}
+
+// ===================== CROW =====================
+// Patrol patterns: arrays of waypoints the crow flies between
+function generatePatrol(lv){
+const maxX=COLS-1, maxY=ROWS-2;
+const patterns=[
+// Horizontal sweep top
+[{x:0,y:1},{x:maxX,y:1},{x:maxX,y:3},{x:0,y:3}],
+// Diagonal cross
+[{x:0,y:1},{x:maxX,y:maxY},{x:maxX,y:1},{x:0,y:maxY}],
+// Figure-8 horizontal
+[{x:0,y:1},{x:Math.floor(maxX/2),y:maxY},{x:maxX,y:1},{x:Math.floor(maxX/2),y:maxY}],
+// Vertical zigzag
+[{x:1,y:0},{x:1,y:maxY},{x:4,y:0},{x:4,y:maxY},{x:7,y:0},{x:7,y:maxY}],
+// Wide diamond
+[{x:Math.floor(maxX/2),y:0},{x:maxX,y:Math.floor(maxY/2)},{x:Math.floor(maxX/2),y:maxY},{x:0,y:Math.floor(maxY/2)}],
+// Perimeter patrol
+[{x:0,y:0},{x:maxX,y:0},{x:maxX,y:maxY},{x:0,y:maxY}],
+// W-shape
+[{x:0,y:1},{x:2,y:maxY},{x:4,y:1},{x:6,y:maxY},{x:maxX,y:1}],
+// Diagonal sweep down-up
+[{x:0,y:0},{x:maxX,y:maxY},{x:0,y:maxY},{x:maxX,y:0}],
+];
+// Pick a pattern based on level to get variety, plus some randomness
+const idx=(lv+Math.floor(Math.random()*3))%patterns.length;
+return patterns[idx];
+}
+
+function initCrow(lv){
+if(!hasCrow(lv)){S.crow=null;return;}
+const patrol=generatePatrol(lv);
+S.crow={
+x:patrol[0].x,
+y:patrol[0].y,
+patrol:patrol,
+waypointIdx:0,
+nextIdx:1,
+wingPhase:0,
+speed:getCrowSpeed(lv)
+};
+}
+
+function updateCrow(){
+if(!S.crow)return;
+const c=S.crow;
+c.wingPhase+=.12;
+
+// Move toward current target waypoint
+const target=c.patrol[c.nextIdx];
+const dx=target.x-c.x;
+const dy=target.y-c.y;
+const dist=Math.sqrt(dx*dx+dy*dy);
+
+if(dist<.15){
+// Reached waypoint — advance to next
+c.waypointIdx=c.nextIdx;
+c.nextIdx=(c.nextIdx+1)%c.patrol.length;
+}else{
+// Move toward waypoint at defined speed
+const step=c.speed/60;
+c.x+=dx/dist*step;
+c.y+=dy/dist*step;
+}
+
+// Store direction for drawing
+c.vx=dx;
+c.vy=dy;
+}
+
+function drawCrow(){
+if(!S.crow)return;
+const c=S.crow;
+const px=c.x*CELL+CELL/2;
+const py=c.y*CELL+CELL/2;
+const wingOff=Math.sin(c.wingPhase)*CELL*.25;
+const facingRight=c.vx>=0;
+
+cx.save();
+cx.translate(px,py);
+if(!facingRight)cx.scale(-1,1);
+
+// Shadow
+cx.fillStyle='rgba(0,0,0,.25)';
+cx.beginPath();
+cx.ellipse(2,CELL*.3,CELL*.25,CELL*.08,0,0,Math.PI*2);
+cx.fill();
+
+// Body (black, sleek)
+cx.fillStyle='#1a1a2e';
+cx.beginPath();
+cx.ellipse(0,0,CELL*.28,CELL*.2,0,0,Math.PI*2);
+cx.fill();
+
+// Wings
+cx.fillStyle='#0d0d1a';
+// Left wing
+cx.beginPath();
+cx.moveTo(-CELL*.1,-CELL*.05);
+cx.quadraticCurveTo(-CELL*.35,-CELL*.15-wingOff,-CELL*.4,-CELL*.05+wingOff*.3);
+cx.quadraticCurveTo(-CELL*.25,CELL*.1,-CELL*.1,CELL*.05);
+cx.fill();
+// Right wing
+cx.beginPath();
+cx.moveTo(CELL*.1,-CELL*.05);
+cx.quadraticCurveTo(CELL*.35,-CELL*.15-wingOff,CELL*.4,-CELL*.05+wingOff*.3);
+cx.quadraticCurveTo(CELL*.25,CELL*.1,CELL*.1,CELL*.05);
+cx.fill();
+
+// Head
+cx.fillStyle='#1a1a2e';
+cx.beginPath();
+cx.arc(CELL*.2,-CELL*.08,CELL*.13,0,Math.PI*2);
+cx.fill();
+
+// Beak (yellow/orange like Crow from Brawl Stars)
+cx.fillStyle='#FFB300';
+cx.beginPath();
+cx.moveTo(CELL*.3,-CELL*.1);
+cx.lineTo(CELL*.45,-CELL*.06);
+cx.lineTo(CELL*.3,-CELL*.02);
+cx.closePath();
+cx.fill();
+
+// Eye (red, menacing)
+cx.fillStyle='#FF1744';
+cx.beginPath();
+cx.arc(CELL*.22,-CELL*.12,CELL*.04,0,Math.PI*2);
+cx.fill();
+cx.fillStyle='#fff';
+cx.beginPath();
+cx.arc(CELL*.23,-CELL*.13,CELL*.015,0,Math.PI*2);
+cx.fill();
+
+// Tail feathers
+cx.fillStyle='#2a1a3e';
+cx.beginPath();
+cx.moveTo(-CELL*.25,0);
+cx.quadraticCurveTo(-CELL*.4,CELL*.05,-CELL*.45,-CELL*.02);
+cx.quadraticCurveTo(-CELL*.38,CELL*.08,-CELL*.42,CELL*.06);
+cx.lineTo(-CELL*.2,CELL*.05);
+cx.fill();
+
+// Danger glow
+cx.shadowColor='#FF1744';
+cx.shadowBlur=15;
+cx.strokeStyle='rgba(255,23,68,.3)';
+cx.lineWidth=2;
+cx.beginPath();
+cx.ellipse(0,0,CELL*.32,CELL*.24,0,0,Math.PI*2);
+cx.stroke();
+cx.shadowBlur=0;
+
+cx.restore();
+
+// "CAW!" text occasionally
+if(Math.sin(c.wingPhase*0.3)>.95){
+cx.save();
+cx.font='bold '+Math.floor(CELL*.28)+'px Lilita One,cursive';
+cx.fillStyle='#FF1744';
+cx.textAlign='center';
+cx.globalAlpha=.8;
+cx.fillText('CAW!',px,py-CELL*.4);
+cx.globalAlpha=1;
+cx.restore();
+}
+}
+
+function checkCrowCollision(){
+if(!S.crow||S.dead||S.won||S.invincible>0)return false;
+const dx=S.frog.x-S.crow.x;
+const dy=S.frog.y-S.crow.y;
+return Math.sqrt(dx*dx+dy*dy)<.7;
+}
 
 // ===================== BUILD LEVEL =====================
 function buildLevel(lv){
@@ -293,7 +526,6 @@ function draw(){
 const theme=THEMES[(S.level-1)%THEMES.length];
 cx.clearRect(0,0,CW,CH);
 
-// Draw lanes
 for(let r=0;r<ROWS;r++){
 const lane=S.lanes[r];
 let bg;
@@ -304,6 +536,26 @@ else if(lane.type==='start')bg=theme.ground;
 else bg=theme.safe;
 cx.fillStyle=bg;
 cx.fillRect(0,r*CELL,CW,CELL);
+
+// Brawl Stars field lines
+if(theme.isBrawl&&(lane.type==='safe'||lane.type==='start')){
+cx.strokeStyle='rgba(255,255,255,.08)';
+cx.lineWidth=1;
+for(let lx=0;lx<COLS;lx++){
+cx.beginPath();cx.moveTo(lx*CELL,r*CELL);cx.lineTo(lx*CELL,r*CELL+CELL);cx.stroke();
+}
+cx.beginPath();cx.moveTo(0,r*CELL+CELL/2);cx.lineTo(CW,r*CELL+CELL/2);cx.stroke();
+}
+
+// Turtle pond — draw lily pads on safe/water
+if(theme.isTurtle&&(lane.type==='safe'||lane.type==='water')){
+cx.fillStyle='rgba(76,175,80,.15)';
+for(let lp=0;lp<COLS;lp+=2){
+cx.beginPath();
+cx.ellipse((lp+.5)*CELL,r*CELL+CELL*.5,CELL*.35,CELL*.25,0,0,Math.PI*2);
+cx.fill();
+}
+}
 
 // Road markings
 if(lane.type==='road'){
@@ -321,11 +573,9 @@ const col=theme.carCols[ci%theme.carCols.length];
 const rx=c.x*CELL,ry=r*CELL+4,rw=c.w*CELL,rh=CELL-8;
 cx.fillStyle=col;
 cx.beginPath();cx.roundRect(rx,ry,rw,rh,5);cx.fill();
-// Windows
 cx.fillStyle='rgba(255,255,255,.35)';
 const winX=lane.dir>0?rx+rw*.15:rx+rw*.45;
 cx.fillRect(winX,ry+3,rw*.35,rh*.4);
-// Headlights
 cx.fillStyle='#FDD835';
 const hlX=lane.dir>0?rx+rw-4:rx;
 cx.fillRect(hlX,ry+3,4,4);
@@ -333,35 +583,57 @@ cx.fillRect(hlX,ry+rh-7,4,4);
 });
 }
 
-// Draw logs
+// Draw logs (or turtles on turtle level)
 if(lane.type==='water'){
 lane.items.forEach(lg=>{
 const rx=lg.x*CELL,ry=r*CELL+3,rw=lg.w*CELL,rh=CELL-6;
+if(theme.isTurtle){
+// Draw green turtles instead of logs
+cx.fillStyle='#2E7D32';
+cx.beginPath();cx.roundRect(rx,ry,rw,rh,rh/2);cx.fill();
+// Shell pattern
+cx.fillStyle='#1B5E20';
+const segments=Math.floor(rw/(CELL*.6));
+for(let s=0;s<segments;s++){
+const sx=rx+rw*.15+s*(rw*.7/Math.max(segments,1));
+cx.beginPath();
+cx.ellipse(sx+CELL*.2,ry+rh/2,CELL*.18,rh*.35,0,0,Math.PI*2);
+cx.fill();
+}
+// Shell highlight
+cx.fillStyle='rgba(165,214,167,.3)';
+cx.beginPath();cx.roundRect(rx+4,ry+2,rw-8,rh*.4,4);cx.fill();
+// Eyes
+const headX=lane.dir>0?rx+rw-CELL*.1:rx+CELL*.1;
+cx.fillStyle='#fff';
+cx.beginPath();cx.arc(headX,ry+rh*.3,3,0,Math.PI*2);cx.fill();
+cx.fillStyle='#000';
+cx.beginPath();cx.arc(headX,ry+rh*.3,1.5,0,Math.PI*2);cx.fill();
+}else{
 cx.fillStyle=theme.logCol;
 cx.beginPath();cx.roundRect(rx,ry,rw,rh,6);cx.fill();
-// Wood grain
 cx.strokeStyle='rgba(0,0,0,.15)';cx.lineWidth=1;
 for(let li=10;li<rw;li+=12){cx.beginPath();cx.moveTo(rx+li,ry+2);cx.lineTo(rx+li,ry+rh-2);cx.stroke();}
-// Highlight
 cx.fillStyle='rgba(255,255,255,.08)';
 cx.fillRect(rx+3,ry+2,rw-6,rh*.3);
+}
 });
 }
 
 // Goal text
 if(lane.type==='goal'){
 cx.fillStyle='#000';cx.globalAlpha=.5;
-cx.font='bold '+Math.floor(CELL*.45)+'px Lilita One,cursive';
+cx.font='bold '+Math.floor(CELL*.42)+'px Lilita One,cursive';
 cx.textAlign='center';cx.textBaseline='middle';
 cx.fillText('★ SAFE ZONE ★',CW/2,r*CELL+CELL/2+1);
 cx.globalAlpha=1;cx.fillStyle='#fff';
 cx.fillText('★ SAFE ZONE ★',CW/2,r*CELL+CELL/2);
 }
 
-// Safe zone decorations
+// Decorations
 if(lane.type==='safe'||lane.type==='start'){
 const decos=theme.deco;
-cx.font=Math.floor(CELL*.4)+'px sans-serif';
+cx.font=Math.floor(CELL*.38)+'px sans-serif';
 cx.textAlign='center';cx.textBaseline='middle';
 for(let d=0;d<COLS;d+=3){
 cx.fillText(decos[(r+d)%decos.length],(d+.5)*CELL,r*CELL+CELL/2);
@@ -369,21 +641,20 @@ cx.fillText(decos[(r+d)%decos.length],(d+.5)*CELL,r*CELL+CELL/2);
 }
 }
 
+// Draw Crow
+drawCrow();
+
 // Draw frog
 if(!S.dead){
 const fx=S.frog.x*CELL+CELL/2,fy=S.frog.y*CELL+CELL/2;
 const flash=S.invincible>0&&Math.floor(S.invincible/4)%2;
 if(!flash){
-// Shadow
 cx.fillStyle='rgba(0,0,0,.2)';
 cx.beginPath();cx.ellipse(fx+2,fy+4,CELL*.35,CELL*.2,0,0,Math.PI*2);cx.fill();
-// Body
 cx.fillStyle='#43A047';
 cx.beginPath();cx.ellipse(fx,fy+2,CELL*.32,CELL*.36,0,0,Math.PI*2);cx.fill();
-// Belly
 cx.fillStyle='#A5D6A7';
 cx.beginPath();cx.ellipse(fx,fy+6,CELL*.2,CELL*.2,0,0,Math.PI*2);cx.fill();
-// Eyes
 const eyeY=fy-CELL*.18;
 cx.fillStyle='#fff';
 cx.beginPath();cx.arc(fx-CELL*.13,eyeY,CELL*.11,0,Math.PI*2);cx.fill();
@@ -391,26 +662,23 @@ cx.beginPath();cx.arc(fx+CELL*.13,eyeY,CELL*.11,0,Math.PI*2);cx.fill();
 cx.fillStyle='#1B5E20';
 cx.beginPath();cx.arc(fx-CELL*.12,eyeY,CELL*.06,0,Math.PI*2);cx.fill();
 cx.beginPath();cx.arc(fx+CELL*.14,eyeY,CELL*.06,0,Math.PI*2);cx.fill();
-// Pupils
 cx.fillStyle='#000';
 cx.beginPath();cx.arc(fx-CELL*.11,eyeY,CELL*.03,0,Math.PI*2);cx.fill();
 cx.beginPath();cx.arc(fx+CELL*.15,eyeY,CELL*.03,0,Math.PI*2);cx.fill();
-// Mouth
 cx.strokeStyle='#2E7D32';cx.lineWidth=1.5;
 cx.beginPath();cx.arc(fx,fy+2,CELL*.12,.15*Math.PI,.85*Math.PI);cx.stroke();
-// Feet
 cx.fillStyle='#388E3C';
 cx.beginPath();cx.ellipse(fx-CELL*.28,fy+CELL*.25,CELL*.1,CELL*.06,.3,0,Math.PI*2);cx.fill();
 cx.beginPath();cx.ellipse(fx+CELL*.28,fy+CELL*.25,CELL*.1,CELL*.06,-.3,0,Math.PI*2);cx.fill();
 }
 }else{
-// Death animation
 const fx=S.frog.x*CELL+CELL/2,fy=S.frog.y*CELL+CELL/2;
 const lane=S.lanes[S.frog.y];
 const t=S.deadTimer/35;
 cx.globalAlpha=1-t;
 cx.font=Math.floor(CELL*.7)+'px sans-serif';cx.textAlign='center';cx.textBaseline='middle';
-cx.fillText(lane.type==='water'?'💦':'💥',fx,fy);
+const deathEmoji=S.killedByCrow?'🐦‍⬛':lane.type==='water'?'💦':'💥';
+cx.fillText(deathEmoji,fx,fy);
 cx.globalAlpha=1;
 }
 
@@ -430,7 +698,6 @@ cx.fillText('Level '+S.level+' Complete!',CW/2,CH/2+CELL*.5);
 // ===================== GAME LOOP =====================
 function tick(){
 if(!S.running)return;
-// Update items
 S.lanes.forEach(lane=>{
 if(lane.type==='road'||lane.type==='water'){
 lane.items.forEach(it=>{
@@ -441,14 +708,15 @@ if(it.x<-it.w-2)it.x=COLS+1;
 }
 });
 
-// Invincibility countdown
 if(S.invincible>0)S.invincible--;
 
-// Death timer
+// Update crow
+updateCrow();
+
 if(S.dead){
 S.deadTimer++;
 if(S.deadTimer>35){
-S.dead=false;S.deadTimer=0;
+S.dead=false;S.deadTimer=0;S.killedByCrow=false;
 S.frog={x:Math.floor(COLS/2),y:ROWS-1};
 S.invincible=45;
 }
@@ -463,22 +731,24 @@ const lane=S.lanes[S.frog.y];
 if(lane.type==='road'){
 for(const c of lane.items){
 if(S.frog.x+.75>c.x&&S.frog.x+.25<c.x+c.w){
-die();break;
+die(false);break;
 }
 }
 }
-if(lane.type==='water'){
+if(lane.type==='water'&&!S.dead){
 let onLog=false;
 for(const lg of lane.items){
 if(S.frog.x+.75>lg.x&&S.frog.x+.25<lg.x+lg.w){
 onLog=true;
 S.frog.x+=lane.spd*lane.dir;
-if(S.frog.x<-0.5||S.frog.x>COLS-.5)die();
+if(S.frog.x<-0.5||S.frog.x>COLS-.5)die(false);
 break;
 }
 }
-if(!onLog&&!S.dead)die();
+if(!onLog&&!S.dead)die(false);
 }
+// Crow collision
+if(checkCrowCollision()&&!S.dead)die(true);
 }
 
 // Goal
@@ -493,8 +763,8 @@ draw();
 S.animId=requestAnimationFrame(tick);
 }
 
-function die(){
-S.dead=true;S.deadTimer=0;S.lives--;
+function die(byCrow){
+S.dead=true;S.deadTimer=0;S.killedByCrow=!!byCrow;S.lives--;
 updateHUD();
 if(S.lives<=0){
 setTimeout(()=>restartLevel(),800);
@@ -529,18 +799,19 @@ S.level=lv;
 S.lanes=buildLevel(lv);
 ROWS=S.lanes.length;
 S.frog={x:Math.floor(COLS/2),y:ROWS-1};
-S.dead=false;S.deadTimer=0;S.won=false;S.invincible=30;
+S.dead=false;S.deadTimer=0;S.won=false;S.invincible=30;S.killedByCrow=false;
 S.lives=Math.max(S.lives,3);
+initCrow(lv);
 resizeGame();updateHUD();
 
-// Show banner
 const theme=THEMES[(lv-1)%THEMES.length];
 document.getElementById('ban-emoji').textContent=theme.deco[0];
 document.getElementById('ban-text').textContent='Level '+lv;
 document.getElementById('ban-sub').textContent=theme.name+(lv>1?' — '+getLevelSubtitle(lv):'');
+document.getElementById('ban-warn').textContent=lv===7?'⚠️ CROW HAS ENTERED THE ARENA! ⚠️':hasCrow(lv)?'🐦‍⬛ Crow is hunting...':'';
 const banner=document.getElementById('level-banner');
 banner.classList.add('active');
-await slp(1500);
+await slp(lv===7?2200:1500);
 banner.classList.remove('active');
 
 S.running=true;
@@ -584,7 +855,6 @@ document.getElementById('math-next').style.display='none';
 
 let input='',done=false,attempts=0;
 
-// Build numpad
 const np=document.getElementById('numpad');
 np.innerHTML='';
 for(let i=1;i<=9;i++){
@@ -649,7 +919,7 @@ else if(sc>=1500)rank='🥇 Master Frog';
 else if(sc>=1000)rank='🥈 Jumping Genius';
 else if(sc>=600)rank='🐸 Skilled Hopper';
 
-document.getElementById('v-text').textContent='You conquered all '+S.questions.length+' levels of traffic, rivers, and brain-busting maths! The roads are safe, the rivers are crossed, and your brain is approximately 300% bigger than when you started.';
+document.getElementById('v-text').textContent='You conquered all '+S.questions.length+' levels of traffic, rivers, Crow attacks, and brain-busting maths! The roads are safe, the rivers are crossed, Crow has flown away in shame, and your brain is approximately 300% bigger than when you started.';
 document.getElementById('v-stats').innerHTML=
 '<div class="srow"><span>⏱️ Time</span><span class="sval">'+m+'m '+s+'s</span></div>'+
 '<div class="srow"><span>🐸 Levels Cleared</span><span class="sval">'+S.level+'</span></div>'+
@@ -661,12 +931,11 @@ document.getElementById('victory').classList.add('active');
 }
 
 // ===================== CONTROLS =====================
-document.getElementById('b-up').onclick=()=>moveFrog(0,-1);
-document.getElementById('b-down').onclick=()=>moveFrog(0,1);
-document.getElementById('b-left').onclick=()=>moveFrog(-1,0);
-document.getElementById('b-right').onclick=()=>moveFrog(1,0);
+document.getElementById('b-up').addEventListener('click',()=>moveFrog(0,-1));
+document.getElementById('b-down').addEventListener('click',()=>moveFrog(0,1));
+document.getElementById('b-left').addEventListener('click',()=>moveFrog(-1,0));
+document.getElementById('b-right').addEventListener('click',()=>moveFrog(1,0));
 
-// Keyboard support too
 document.addEventListener('keydown',e=>{
 if(['ArrowUp','w','W'].includes(e.key)){e.preventDefault();moveFrog(0,-1)}
 if(['ArrowDown','s','S'].includes(e.key)){e.preventDefault();moveFrog(0,1)}
@@ -694,12 +963,12 @@ return a;
 }
 
 function genMultiplyQ(){
-const a=3+Math.floor(Math.random()*9); // 3-11
-const b=3+Math.floor(Math.random()*9); // 3-11
+const a=3+Math.floor(Math.random()*9);
+const b=3+Math.floor(Math.random()*9);
 return {q:"What is "+a+" × "+b+"?",a:a*b};
 }
 function genSquaredQ(){
-const n=4+Math.floor(Math.random()*13); // 4-16
+const n=4+Math.floor(Math.random()*13);
 return {q:"What is "+n+" squared?",a:n*n};
 }
 
